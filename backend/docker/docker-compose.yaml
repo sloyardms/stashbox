@@ -1,0 +1,23 @@
+name: stashbox
+services:
+  postgres:
+    image: postgres:17.5
+    container_name: stashbox-db
+    environment:
+      POSTGRES_USER: stashbox
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: stashbox
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres_data:/var/lib/postgresql/data
+    networks:
+      - stashbox-network
+
+volumes:
+  stashbox_data:
+
+networks:
+  stashbox-network:
+    driver: bridge
+
