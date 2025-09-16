@@ -7,6 +7,20 @@ CREATE TABLE users (
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+-- User Filters
+CREATE TABLE user_filters (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    filter_name TEXT NOT NULL,
+    url_pattern TEXT NOT NULL,
+    extraction_regex TEXT NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT user_filter_url_pattern_unique UNIQUE(user_id, url_pattern)
+)
+CREATE INDEX user_filters_user_id_index ON user_filters(user_id);
+
 -- Item Groups
 CREATE TABLE item_groups (
     id UUID PRIMARY KEY,
