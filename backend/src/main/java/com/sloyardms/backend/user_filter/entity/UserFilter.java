@@ -1,7 +1,6 @@
 package com.sloyardms.backend.user_filter.entity;
 
 import com.sloyardms.backend.common.entity.Auditable;
-import com.sloyardms.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

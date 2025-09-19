@@ -1,9 +1,6 @@
 package com.sloyardms.backend.user.entity;
 
 import com.sloyardms.backend.common.entity.Auditable;
-import com.sloyardms.backend.group.entity.ItemGroup;
-import com.sloyardms.backend.stash_item.StashItem;
-import com.sloyardms.backend.tag.entity.Tag;
 import com.sloyardms.backend.user_filter.entity.UserFilter;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
@@ -13,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

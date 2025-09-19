@@ -1,6 +1,5 @@
 package com.sloyardms.backend.item_image.entity;
 
-import com.sloyardms.backend.stash_item.StashItem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

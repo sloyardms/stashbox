@@ -1,7 +1,5 @@
 package com.sloyardms.backend.note_file.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.sloyardms.backend.note.entity.ItemNote;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

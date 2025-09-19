@@ -1,10 +1,7 @@
 package com.sloyardms.backend.note.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sloyardms.backend.common.entity.Auditable;
 import com.sloyardms.backend.note_file.entity.NoteFile;
-import com.sloyardms.backend.stash_item.StashItem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

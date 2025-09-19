@@ -1,19 +1,16 @@
 package com.sloyardms.backend.stash_item;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sloyardms.backend.common.entity.Auditable;
 import com.sloyardms.backend.group.entity.ItemGroup;
 import com.sloyardms.backend.item_image.entity.ItemImage;
 import com.sloyardms.backend.note.entity.ItemNote;
 import com.sloyardms.backend.tag.entity.Tag;
-import com.sloyardms.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Array;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
