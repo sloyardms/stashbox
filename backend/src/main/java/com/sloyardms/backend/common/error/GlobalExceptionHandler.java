@@ -365,7 +365,7 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
                 String.format("Parameter '%s' should be of type '%s'",
-                        ex.getName(), ex.getRequiredType().getSimpleName())
+                        ex.getName(), ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : null)
         );
 
         problemDetail.setType(URI.create("urn:problem-type:type-mismatch"));
