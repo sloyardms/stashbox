@@ -28,6 +28,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -35,7 +36,6 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     private static final String TIMESTAMP_PROPERTY = "timestamp";
-    private static final String PATH_PROPERTY = "path";
     private static final String ERROR_ID_PROPERTY = "errorId";
 
     /**
@@ -61,8 +61,8 @@ public class GlobalExceptionHandler {
         });
 
         problemDetail.setProperty("fieldErrors", fieldErrors);
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] Validation error on {}: {} - Fields: {}",
                 errorId, request.getRequestURI(), ex.getObjectName(), fieldErrors.keySet());
@@ -91,8 +91,8 @@ public class GlobalExceptionHandler {
                 ));
 
         problemDetail.setProperty("violations", violations);
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] Constraint violation on {}: {} - Violations: {}",
                 errorId, request.getRequestURI(), ex.getMessage(), violations.keySet());
@@ -113,8 +113,8 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Business Logic Error");
         problemDetail.setProperty("errorCode", ex.getErrorCode());
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.error("[{}] Business exception - Code: {}, Message: {}, Path: {}",
                 errorId, ex.getErrorCode(), ex.getMessage(), request.getRequestURI());
@@ -138,8 +138,8 @@ public class GlobalExceptionHandler {
         problemDetail.setProperty("resourceType", ex.getResourceType());
         problemDetail.setProperty("resourceId", ex.getResourceId());
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] Resource not found: {} with ID {} - Path: {}",
                 errorId, ex.getResourceType(), ex.getResourceId(), request.getRequestURI());
@@ -164,8 +164,8 @@ public class GlobalExceptionHandler {
         problemDetail.setProperty("fieldName", ex.getFieldName());
         problemDetail.setProperty("fieldValue", ex.getFieldValue());
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] Resource already exists: {} with {} = {} - Path: {}",
                 errorId, ex.getResourceType(), ex.getFieldName(), ex.getFieldValue(), request.getRequestURI());
@@ -187,8 +187,8 @@ public class GlobalExceptionHandler {
         problemDetail.setType(URI.create("urn:problem-type:internal-server-error"));
         problemDetail.setTitle("Internal Server Error");
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.error("[{}] Unexpected error on {}: {}", errorId, request.getRequestURI(), ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
@@ -209,8 +209,8 @@ public class GlobalExceptionHandler {
         problemDetail.setType(URI.create("urn:problem-type:authentication-error"));
         problemDetail.setTitle("Authentication Required");
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] Authentication failed for request to {}", errorId, request.getRequestURI());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(problemDetail);
@@ -231,8 +231,8 @@ public class GlobalExceptionHandler {
         problemDetail.setType(URI.create("urn:problem-type:access-denied"));
         problemDetail.setTitle("Access Denied");
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] Access denied for request to {}", errorId, request.getRequestURI());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problemDetail);
@@ -253,8 +253,8 @@ public class GlobalExceptionHandler {
         problemDetail.setType(URI.create("urn:problem-type:malformed-request"));
         problemDetail.setTitle("Malformed Request");
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] Malformed request body on {}: {}", errorId, request.getRequestURI(), ex.getMessage(), ex);
         return ResponseEntity.badRequest().body(problemDetail);
@@ -275,8 +275,8 @@ public class GlobalExceptionHandler {
         problemDetail.setType(URI.create("urn:problem-type:data-integrity-violation"));
         problemDetail.setTitle("Data Integrity Violation");
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.error("[{}] Data integrity violation on {}: {}", errorId, request.getRequestURI(), ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
@@ -298,8 +298,8 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Method Not Allowed");
         problemDetail.setProperty("supportedMethods", ex.getSupportedMethods());
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] Method {} not supported for {} - Supported: {}",
                 errorId, ex.getMethod(), request.getRequestURI(), ex.getSupportedMethods());
@@ -322,8 +322,8 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Unsupported Media Type");
         problemDetail.setProperty("supportedMediaTypes", ex.getSupportedMediaTypes());
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] Unsupported media type {} for {} - Supported: {}",
                 errorId, ex.getContentType(), request.getRequestURI(), ex.getSupportedMediaTypes());
@@ -347,8 +347,8 @@ public class GlobalExceptionHandler {
         problemDetail.setProperty("parameterName", ex.getParameterName());
         problemDetail.setProperty("parameterType", ex.getParameterType());
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] Missing required parameter '{}' ({}) for {}",
                 errorId, ex.getParameterName(), ex.getParameterType(), request.getRequestURI());
@@ -374,8 +374,8 @@ public class GlobalExceptionHandler {
         problemDetail.setProperty("providedValue", ex.getValue());
         problemDetail.setProperty("expectedType", ex.getRequiredType().getSimpleName());
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] Type mismatch for parameter '{}' on {}: expected {}, got {} - Value: {}",
                 errorId, ex.getName(), request.getRequestURI(), ex.getRequiredType().getSimpleName(),
@@ -399,8 +399,8 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("File Too Large");
         problemDetail.setProperty("maxSize", ex.getMaxUploadSize());
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] File upload size exceeded for {}: max allowed {} bytes",
                 errorId, request.getRequestURI(), ex.getMaxUploadSize());
@@ -422,8 +422,8 @@ public class GlobalExceptionHandler {
         problemDetail.setType(URI.create("urn:problem-type:endpoint-not-found"));
         problemDetail.setTitle("Endpoint Not Found");
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.warn("[{}] No handler found for {} {} - Headers: {}",
                 errorId, ex.getHttpMethod(), ex.getRequestURL(), ex.getHeaders());
@@ -445,8 +445,8 @@ public class GlobalExceptionHandler {
         problemDetail.setType(URI.create("urn:problem-type:database-error"));
         problemDetail.setTitle("Database Error");
 
-        addCommonProperties(problemDetail, request);
-        String errorId = (String) problemDetail.getProperties().get(ERROR_ID_PROPERTY);
+        addCommonProperties(problemDetail);
+        String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
         log.error("[{}] Database access exception on {}: {}", errorId, request.getRequestURI(), ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
@@ -459,7 +459,7 @@ public class GlobalExceptionHandler {
     /**
      * Add common properties to all ProblemDetail responses
      */
-    private void addCommonProperties(ProblemDetail problemDetail, HttpServletRequest request) {
+    private void addCommonProperties(ProblemDetail problemDetail) {
         problemDetail.setProperty(TIMESTAMP_PROPERTY, Instant.now());
         problemDetail.setProperty(ERROR_ID_PROPERTY, generateErrorId());
     }
