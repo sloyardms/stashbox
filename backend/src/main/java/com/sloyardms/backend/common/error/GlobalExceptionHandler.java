@@ -1,9 +1,13 @@
 package com.sloyardms.backend.common.error;
 
+import com.sloyardms.backend.config.messages.ErrorMessageKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.web.error.Error;
+import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -27,31 +31,37 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import java.net.URI;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
     private static final String TIMESTAMP_PROPERTY = "timestamp";
     private static final String ERROR_ID_PROPERTY = "errorId";
+
+    private final MessageSource messageSource;
 
     /**
      * Handle validation errors for request body (@Valid)
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ProblemDetail> handleValidationErrors(
-            MethodArgumentNotValidException ex, HttpServletRequest request) {
+            MethodArgumentNotValidException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.VALIDATION_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(ErrorMessageKey.VALIDATION_DETAIL.getKey(), null, locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                "Validation failed for one or more fields"
+                HttpStatus.BAD_REQUEST, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:validation-error"));
-        problemDetail.setTitle("Validation Error");
+        problemDetail.setTitle(title);
 
         Map<String, String> fieldErrors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
@@ -74,15 +84,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ProblemDetail> handleConstraintViolation(
-            ConstraintViolationException ex, HttpServletRequest request) {
+            ConstraintViolationException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.CONSTRAINT_VIOLATION_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(ErrorMessageKey.CONSTRAINT_VIOLATION_DETAIL.getKey(), null, locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                "Request contains invalid parameters"
+                HttpStatus.BAD_REQUEST, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:constraint-violation"));
-        problemDetail.setTitle("Constraint Violation");
+        problemDetail.setTitle(title);
 
         Map<String, String> violations = ex.getConstraintViolations().stream()
                 .collect(Collectors.toMap(
@@ -104,13 +116,20 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ProblemDetail> handleBusinessException(
-            BusinessException ex, HttpServletRequest request) {
+            BusinessException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.BUSINESS_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(
+                ErrorMessageKey.BUSINESS_DETAIL.getKey(),
+                new Object[]{ex.getMessage()},
+                locale);
 
         HttpStatus status = HttpStatus.valueOf(ex.getStatusCode());
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
 
         problemDetail.setType(URI.create("urn:problem-type:business-error"));
-        problemDetail.setTitle("Business Logic Error");
+        problemDetail.setTitle(title);
+        problemDetail.setDetail(detail);
         problemDetail.setProperty("errorCode", ex.getErrorCode());
 
         addCommonProperties(problemDetail);
@@ -126,23 +145,29 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ProblemDetail> handleResourceNotFound(
-            ResourceNotFoundException ex, HttpServletRequest request) {
+            ResourceNotFoundException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.RESOURCE_NOT_FOUND_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(
+                ErrorMessageKey.RESOURCE_NOT_FOUND_DETAIL.getKey(),
+                new Object[]{ex.getResourceType(), ex.getFieldName(), ex.getFieldValue().toString()},
+                locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.NOT_FOUND,
-                ex.getMessage()
+                HttpStatus.NOT_FOUND, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:resource-not-found"));
-        problemDetail.setTitle("Resource Not Found");
+        problemDetail.setTitle(title);
         problemDetail.setProperty("resourceType", ex.getResourceType());
-        problemDetail.setProperty("resourceId", ex.getResourceId());
+        problemDetail.setProperty("fieldName", ex.getFieldName());
+        problemDetail.setProperty("fieldValue", ex.getFieldValue() != null ? ex.getFieldValue().toString() : null);
 
         addCommonProperties(problemDetail);
         String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
 
-        log.warn("[{}] Resource not found: {} with ID {} - Path: {}",
-                errorId, ex.getResourceType(), ex.getResourceId(), request.getRequestURI());
+        log.warn("[{}] Resource not found: {} with {} = {} - Path: {}",
+                errorId, ex.getResourceType(), ex.getFieldName(), ex.getFieldValue(), request.getRequestURI());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
     }
 
@@ -151,15 +176,20 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<ProblemDetail> handleResourceAlreadyExists(
-            ResourceAlreadyExistsException ex, HttpServletRequest request) {
+            ResourceAlreadyExistsException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.RESOURCE_ALREADY_EXISTS_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(
+                ErrorMessageKey.RESOURCE_ALREADY_EXISTS_DETAIL.getKey(),
+                new Object[]{ex.getResourceType(), ex.getFieldName(), ex.getFieldValue().toString()},
+                locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.CONFLICT,
-                ex.getMessage()
+                HttpStatus.CONFLICT, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:resource-already-exists"));
-        problemDetail.setTitle("Resource Already Exists");
+        problemDetail.setTitle(title);
         problemDetail.setProperty("resourceType", ex.getResourceType());
         problemDetail.setProperty("fieldName", ex.getFieldName());
         problemDetail.setProperty("fieldValue", ex.getFieldValue());
@@ -177,15 +207,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGenericException(
-            Exception ex, HttpServletRequest request) {
+            Exception ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.INTERNAL_SERVER_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(ErrorMessageKey.INTERNAL_SERVER_DETAIL.getKey(), null, locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "An unexpected error occurred"
+                HttpStatus.INTERNAL_SERVER_ERROR, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:internal-server-error"));
-        problemDetail.setTitle("Internal Server Error");
+        problemDetail.setTitle(title);
 
         addCommonProperties(problemDetail);
         String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
@@ -199,15 +231,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler({AuthenticationException.class, BadCredentialsException.class})
     public ResponseEntity<ProblemDetail> handleAuthenticationException(
-            AuthenticationException ex, HttpServletRequest request) {
+            AuthenticationException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.AUTHENTICATION_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(ErrorMessageKey.AUTHENTICATION_DETAIL.getKey(), null, locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.UNAUTHORIZED,
-                "Authentication failed"
+                HttpStatus.UNAUTHORIZED, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:authentication-error"));
-        problemDetail.setTitle("Authentication Required");
+        problemDetail.setTitle(title);
 
         addCommonProperties(problemDetail);
         String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
@@ -221,15 +255,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ProblemDetail> handleAccessDeniedException(
-            AccessDeniedException ex, HttpServletRequest request) {
+            AccessDeniedException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.ACCESS_DENIED_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(ErrorMessageKey.ACCESS_DENIED_DETAIL.getKey(), null, locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.FORBIDDEN,
-                "Access denied - insufficient privileges"
+                HttpStatus.FORBIDDEN, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:access-denied"));
-        problemDetail.setTitle("Access Denied");
+        problemDetail.setTitle(title);
 
         addCommonProperties(problemDetail);
         String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
@@ -243,15 +279,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ProblemDetail> handleHttpMessageNotReadable(
-            HttpMessageNotReadableException ex, HttpServletRequest request) {
+            HttpMessageNotReadableException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.MALFORMED_REQUEST_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(ErrorMessageKey.MALFORMED_REQUEST_DETAIL.getKey(), null, locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                "Malformed JSON request or invalid request body"
+                HttpStatus.BAD_REQUEST, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:malformed-request"));
-        problemDetail.setTitle("Malformed Request");
+        problemDetail.setTitle(title);
 
         addCommonProperties(problemDetail);
         String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
@@ -265,15 +303,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ProblemDetail> handleDataIntegrityViolation(
-            DataIntegrityViolationException ex, HttpServletRequest request) {
+            DataIntegrityViolationException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.DATA_INTEGRITY_VIOLATION_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(ErrorMessageKey.DATA_INTEGRITY_VIOLATION_DETAIL.getKey(), null, locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.CONFLICT,
-                "Data integrity constraint violated"
+                HttpStatus.CONFLICT, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:data-integrity-violation"));
-        problemDetail.setTitle("Data Integrity Violation");
+        problemDetail.setTitle(title);
 
         addCommonProperties(problemDetail);
         String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
@@ -283,19 +323,24 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handle HTTP method not supported
+     * Handle HTTP method not allowed
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ProblemDetail> handleMethodNotSupported(
-            HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+    public ResponseEntity<ProblemDetail> handleMethodNotAllowed(
+            HttpRequestMethodNotSupportedException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.HTTP_METHOD_NOT_ALLOWED_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(
+                ErrorMessageKey.HTTP_METHOD_NOT_ALLOWED_DETAIL.getKey(),
+                new Object[]{ex.getMethod()},
+                locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.METHOD_NOT_ALLOWED,
-                String.format("HTTP method '%s' is not supported for this endpoint", ex.getMethod())
+                HttpStatus.METHOD_NOT_ALLOWED, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:method-not-allowed"));
-        problemDetail.setTitle("Method Not Allowed");
+        problemDetail.setTitle(title);
         problemDetail.setProperty("supportedMethods", ex.getSupportedMethods());
 
         addCommonProperties(problemDetail);
@@ -311,15 +356,21 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<ProblemDetail> handleUnsupportedMediaType(
-            HttpMediaTypeNotSupportedException ex, HttpServletRequest request) {
+            HttpMediaTypeNotSupportedException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.UNSUPPORTED_MEDIA_TYPE_TITLE.getKey(), null, locale);
+        String mediaType = ex.getContentType() != null ? ex.getContentType().getType() : "";
+        String detail = messageSource.getMessage(
+                ErrorMessageKey.UNSUPPORTED_MEDIA_TYPE_DETAIL.getKey(),
+                new Object[]{mediaType},
+                locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.UNSUPPORTED_MEDIA_TYPE,
-                String.format("Media type '%s' is not supported", ex.getContentType())
+                HttpStatus.UNSUPPORTED_MEDIA_TYPE, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:unsupported-media-type"));
-        problemDetail.setTitle("Unsupported Media Type");
+        problemDetail.setTitle(title);
         problemDetail.setProperty("supportedMediaTypes", ex.getSupportedMediaTypes());
 
         addCommonProperties(problemDetail);
@@ -335,15 +386,20 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ProblemDetail> handleMissingParameter(
-            MissingServletRequestParameterException ex, HttpServletRequest request) {
+            MissingServletRequestParameterException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.MISSING_PARAMETER_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(
+                ErrorMessageKey.MISSING_PARAMETER_DETAIL.getKey(),
+                new Object[]{ex.getParameterName()},
+                locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                String.format("Required parameter '%s' is missing", ex.getParameterName())
+                HttpStatus.BAD_REQUEST, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:missing-parameter"));
-        problemDetail.setTitle("Missing Required Parameter");
+        problemDetail.setTitle(title);
         problemDetail.setProperty("parameterName", ex.getParameterName());
         problemDetail.setProperty("parameterType", ex.getParameterType());
 
@@ -360,16 +416,21 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ProblemDetail> handleTypeMismatch(
-            MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+            MethodArgumentTypeMismatchException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.TYPE_MISMATCH_TITLE.getKey(), null, locale);
+        String requiredParamType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "";
+        String detail = messageSource.getMessage(
+                ErrorMessageKey.TYPE_MISMATCH_DETAIL.getKey(),
+                new Object[]{ex.getName(), requiredParamType},
+                locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                String.format("Parameter '%s' should be of type '%s'",
-                        ex.getName(), ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : null)
+                HttpStatus.BAD_REQUEST, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:type-mismatch"));
-        problemDetail.setTitle("Parameter Type Mismatch");
+        problemDetail.setTitle(title);
         problemDetail.setProperty("parameterName", ex.getName());
         problemDetail.setProperty("providedValue", ex.getValue());
         problemDetail.setProperty("expectedType", ex.getRequiredType().getSimpleName());
@@ -388,15 +449,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ProblemDetail> handleMaxUploadSizeExceeded(
-            MaxUploadSizeExceededException ex, HttpServletRequest request) {
+            MaxUploadSizeExceededException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.FILE_TOO_LARGE_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(ErrorMessageKey.FILE_TOO_LARGE_DETAIL.getKey(), null, locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.PAYLOAD_TOO_LARGE,
-                "File size exceeds the maximum allowed limit"
+                HttpStatus.PAYLOAD_TOO_LARGE, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:file-too-large"));
-        problemDetail.setTitle("File Too Large");
+        problemDetail.setTitle(title);
         problemDetail.setProperty("maxSize", ex.getMaxUploadSize());
 
         addCommonProperties(problemDetail);
@@ -412,15 +475,19 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ProblemDetail> handleNoHandlerFound(
-            NoHandlerFoundException ex, HttpServletRequest request) {
+            NoHandlerFoundException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.NO_HANDLER_FOUND_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(
+                ErrorMessageKey.NO_HANDLER_FOUND_DETAIL.getKey(),
+                new Object[]{ex.getHttpMethod(), request.getRequestURI()}, locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.NOT_FOUND,
-                String.format("No handler found for %s %s", ex.getHttpMethod(), ex.getRequestURL())
+                HttpStatus.NOT_FOUND, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:endpoint-not-found"));
-        problemDetail.setTitle("Endpoint Not Found");
+        problemDetail.setTitle(title);
 
         addCommonProperties(problemDetail);
         String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
@@ -435,15 +502,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ProblemDetail> handleDataAccessException(
-            DataAccessException ex, HttpServletRequest request) {
+            DataAccessException ex, HttpServletRequest request, Locale locale) {
+
+        String title = messageSource.getMessage(ErrorMessageKey.DATABASE_ERROR_TITLE.getKey(), null, locale);
+        String detail = messageSource.getMessage(ErrorMessageKey.DATABASE_ERROR_DETAIL.getKey(), null, locale);
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Database operation failed"
+                HttpStatus.INTERNAL_SERVER_ERROR, detail
         );
 
         problemDetail.setType(URI.create("urn:problem-type:database-error"));
-        problemDetail.setTitle("Database Error");
+        problemDetail.setTitle(title);
 
         addCommonProperties(problemDetail);
         String errorId = (String) Objects.requireNonNull(problemDetail.getProperties()).get(ERROR_ID_PROPERTY);
