@@ -2,6 +2,7 @@
 CREATE TABLE users (
     id UUID PRIMARY KEY,
     external_id UUID NOT NULL UNIQUE,
+    username TEXT NOT NULL UNIQUE,
     settings JSONB NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
