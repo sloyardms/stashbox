@@ -25,7 +25,7 @@ public class AuthUtils {
      * @throws SecurityException if no authenticated user found
      * @throws IllegalStateException if principal type is not supported
      */
-    public static UUID getCurrentUserId() {
+    public static UUID getCurrentUserExternalId() {
         Authentication auth = getAuthentication();
         Object principal = auth.getPrincipal();
 
@@ -34,11 +34,19 @@ public class AuthUtils {
         }
 
         if (principal instanceof Jwt jwt) {
-            return UUID.fromString(jwt.getSubject());
+            String subject = jwt.getSubject();
+            if (subject == null || subject.isBlank()) {
+                throw new IllegalStateException("JWT subject is null or empty");
+            }
+            return parseUUID(subject, "JWT subject");
         }
 
         if (principal instanceof OidcUser oidcUser) {
-            return UUID.fromString(oidcUser.getSubject());
+            String subject = oidcUser.getSubject();
+            if (subject == null || subject.isBlank()) {
+                throw new IllegalStateException("OIDC subject is null or empty");
+            }
+            return parseUUID(subject, "OIDC subject");
         }
 
         throw new IllegalStateException("Unknown principal type: " + principal.getClass());
@@ -62,45 +70,32 @@ public class AuthUtils {
 
         // For JWT tokens
         if (principal instanceof Jwt jwt) {
-            return jwt.getClaimAsString("preferred_username");
+            String username = jwt.getClaimAsString("preferred_username");
+            if (username == null || username.isBlank()) {
+                username = jwt.getClaimAsString("username");
+            }
+            if (username == null || username.isBlank()) {
+                username = jwt.getClaimAsString("email");
+            }
+            if (username == null || username.isBlank()) {
+                throw new IllegalStateException("No valid username claim found in JWT");
+            }
+            return username;
         }
 
         // For OIDC user
         if (principal instanceof OidcUser oidcUser) {
-            return oidcUser.getPreferredUsername();
+            String username = oidcUser.getPreferredUsername();
+            if (username == null || username.isBlank()) {
+                username = oidcUser.getEmail();
+            }
+            if (username == null || username.isBlank()) {
+                throw new IllegalStateException("No valid username found in OIDC user");
+            }
+            return username;
         }
         throw new IllegalStateException("Unknown principal type: " + principal.getClass());
     }
-
-    /**
-     * Get the current authenticated user's full name
-     *
-     * @return the full name from the 'name' claim
-     * @throws SecurityException if no authenticated user found
-     * @throws IllegalStateException if principal type is not supported
-     */
-    public static String getCurrentUserFullName() {
-        Authentication auth = getAuthentication();
-        Object principal = auth.getPrincipal();
-
-        // For dev/test environment
-        if (principal instanceof DevUserPrincipal fake) {
-            return fake.getFullName();
-        }
-
-        // For JWT tokens
-        if (principal instanceof Jwt jwt) {
-            return jwt.getClaimAsString("name");
-        }
-
-        // For OIDC user
-        if (principal instanceof OidcUser oidcUser) {
-            return oidcUser.getFullName();
-        }
-
-        throw new IllegalStateException("Unknown principal type: " + principal.getClass());
-    }
-
 
     /**
      * Check if the current user has a specific role
@@ -184,6 +179,16 @@ public class AuthUtils {
         }
 
         return auth;
+    }
+
+    private static UUID parseUUID(String value, String fieldName) {
+        try {
+            return UUID.fromString(value);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException(
+                    fieldName + " is not a valid UUID: " + value, e
+            );
+        }
     }
 
 }
