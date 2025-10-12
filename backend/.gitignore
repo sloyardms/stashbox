@@ -34,3 +34,7 @@ build/
 
 ### Docker Generated Data ###
 /docker/data/
+
+### Environment variables ###
+.env
+.env.local
