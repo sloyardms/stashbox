@@ -39,6 +39,8 @@ public class ProductionSecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // Public endpoints (health checks, etc.)
                         .requestMatchers(publicEndpoints).permitAll()
+                        .requestMatchers("/api/v1/me/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
