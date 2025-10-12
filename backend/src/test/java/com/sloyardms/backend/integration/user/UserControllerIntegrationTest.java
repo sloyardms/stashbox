@@ -4,7 +4,6 @@ import com.sloyardms.backend.integration.common.BaseIntegrationTest;
 import com.sloyardms.backend.user.UserRepository;
 import com.sloyardms.backend.user.dto.UserDetailDto;
 import com.sloyardms.backend.user.dto.UserSettingsUpdateDto;
-import com.sloyardms.backend.user.entity.User;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

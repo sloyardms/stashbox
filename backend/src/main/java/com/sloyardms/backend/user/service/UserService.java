@@ -119,7 +119,7 @@ public class UserService implements IUserService {
         UUID externalId = FakeAuthFilter.DEFAULT_EXTERNAL_USER_ID;
         Optional<User> foundUser = userRepository.findByExternalId(externalId);
 
-        User userDb = null;
+        User userDb;
         if (foundUser.isPresent()) {
             userDb = foundUser.get();
         } else {

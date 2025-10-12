@@ -7,7 +7,6 @@ import com.sloyardms.backend.user_filter.UserFilterRepository;
 import com.sloyardms.backend.user_filter.dto.UserFilterCreateDto;
 import com.sloyardms.backend.user_filter.dto.UserFilterUpdateDto;
 import com.sloyardms.backend.user_filter.entity.UserFilter;
-import com.sloyardms.backend.user_filter.mapper.UserFilterMapper;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -25,7 +25,7 @@ public class BaseIntegrationTest {
     private int port;
 
     @Container
-    static final PostgreSQLContainer postgresContainer = new PostgreSQLContainer("postgres:18.0")
+    static final PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:18.0")
             .withDatabaseName("stashboxdb")
             .withUsername("user")
             .withPassword("password");
