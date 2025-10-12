@@ -54,7 +54,7 @@ public class KeycloakJwtAuthenticationConverter implements Converter<Jwt, Abstra
 
         // Map Keycloak roles
         return roles.stream()
-                .map(SimpleGrantedAuthority::new)
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
                 .collect(Collectors.toUnmodifiableList());
     }
 }
