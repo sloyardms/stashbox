@@ -5,8 +5,8 @@ import com.sloyardms.backend.user_filter.entity.UserFilter;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 
@@ -16,6 +16,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
@@ -39,12 +40,12 @@ public class User extends Auditable {
     @Column(name = "settings", columnDefinition = "jsonb", nullable = false)
     private UserSettings settings;
 
-    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name = "user_id")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<UserFilter> filters = new ArrayList<>();
 
     @PostLoad
-    private void ensureDefaultSettings(){
+    @PostUpdate
+    private void ensureDefaultSettings() {
         this.settings = UserSettings.withDefaults(this.settings);
     }
 
