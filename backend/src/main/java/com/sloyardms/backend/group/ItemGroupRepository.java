@@ -1,7 +1,6 @@
 package com.sloyardms.backend.group;
 
 import com.sloyardms.backend.group.entity.ItemGroup;
-import com.sloyardms.backend.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,7 +15,7 @@ public interface ItemGroupRepository extends JpaRepository<ItemGroup, UUID> {
     @Query("""
                  SELECT g
                  FROM ItemGroup g
-                 INNER JOIN User u ON g.user.id = u.id 
+                 INNER JOIN User u ON g.user.id = u.id
                  WHERE g.id = :groupId AND u.externalId = :externalId
             """)
     Optional<ItemGroup> findByIdAndUserExternalId(
@@ -26,7 +25,7 @@ public interface ItemGroupRepository extends JpaRepository<ItemGroup, UUID> {
 
     @Query("""
                 SELECT g FROM ItemGroup g
-                INNER JOIN User u ON g.user.id = u.id 
+                INNER JOIN User u ON g.user.id = u.id
                 WHERE u.externalId = :externalId
             """)
     Page<ItemGroup> findAllByUser(

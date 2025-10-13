@@ -21,8 +21,8 @@ import java.util.UUID;
 @Service
 public class ItemGroupService implements IItemGroupService {
 
-    private UserRepository userRepository;
-    private ItemGroupRepository itemGroupRepository;
+    private final UserRepository userRepository;
+    private final ItemGroupRepository itemGroupRepository;
     private final ItemGroupMapper itemGroupMapper;
 
     public ItemGroupService(ItemGroupRepository itemGroupRepository, ItemGroupMapper itemGroupMapper,
