@@ -1,17 +1,24 @@
 package com.sloyardms.backend.integration.user;
 
+import com.sloyardms.backend.group.ItemGroupRepository;
+import com.sloyardms.backend.group.entity.ItemGroup;
 import com.sloyardms.backend.integration.common.BaseIntegrationTest;
 import com.sloyardms.backend.user.UserRepository;
 import com.sloyardms.backend.user.dto.UserDetailDto;
 import com.sloyardms.backend.user.dto.UserSettingsUpdateDto;
+import com.sloyardms.backend.user.entity.User;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,12 +30,16 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ItemGroupRepository itemGroupRepository;
+
     private final String normalUserName = "normal_user";
     private final String normalUserPassword = "password";
     private UserDetailDto existingUser;
 
     @BeforeEach
     public void setupDatabase() {
+        itemGroupRepository.deleteAll();
         userRepository.deleteAll();
 
         // Create normal user
@@ -105,6 +116,29 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
                     .as(UserDetailDto.class);
 
             assertThat(userRepository.findAll()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("Should return 201 and create default group when user is created")
+        void shouldReturn201_WhenUserIsCreatedAndDefaultGroupIsCreated() {
+            itemGroupRepository.deleteAll();
+            userRepository.deleteAll();
+
+            UserDetailDto createdUser = authenticatedRequest(normalUserName, normalUserPassword)
+                    .when()
+                    .post("/api/v1/me")
+                    .then()
+                    .statusCode(HttpStatus.CREATED.value())
+                    .contentType(ContentType.JSON)
+                    .extract()
+                    .as(UserDetailDto.class);
+
+            User user = userRepository.findById(createdUser.getId()).get();
+            Page<ItemGroup> groups = itemGroupRepository.findAllByUser(user.getExternalId(), Pageable.unpaged());
+
+            assertThat(groups.getTotalElements()).isEqualTo(1);
+            assertThat(groups.getContent().getFirst().getName()).isEqualTo("Ungrouped");
+            assertThat(groups.getContent().getFirst().isDefaultGroup()).isTrue();
         }
 
         @Test
