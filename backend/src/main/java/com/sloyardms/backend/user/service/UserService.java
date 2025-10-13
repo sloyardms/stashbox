@@ -2,6 +2,7 @@ package com.sloyardms.backend.user.service;
 
 import com.sloyardms.backend.common.error.ResourceAlreadyExistsException;
 import com.sloyardms.backend.common.error.ResourceNotFoundException;
+import com.sloyardms.backend.group.service.ItemGroupService;
 import com.sloyardms.backend.security.filter.FakeAuthFilter;
 import com.sloyardms.backend.user.UserRepository;
 import com.sloyardms.backend.user.dto.UserDetailDto;
@@ -28,12 +29,14 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserSettingsMapper userSettingsMapper;
+    private final ItemGroupService itemGroupService;
 
     public UserService(UserRepository userRepository, UserMapper userMapper,
-                       UserSettingsMapper userSettingsMapper) {
+                       UserSettingsMapper userSettingsMapper, ItemGroupService itemGroupService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.userSettingsMapper = userSettingsMapper;
+        this.itemGroupService = itemGroupService;
     }
 
     @Transactional(readOnly = true)
@@ -66,7 +69,10 @@ public class UserService implements IUserService {
         user.setUserName(username);
         user.setId(UUID.randomUUID());
 
-        return saveUserChangesInDb(user);
+        UserDetailDto savedUserDto = saveUserChangesInDb(user);
+        itemGroupService.createDefaultGroup(user);
+
+        return savedUserDto;
     }
 
     @Transactional(rollbackFor = Exception.class)
