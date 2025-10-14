@@ -13,6 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserSettings {
 
+    @Builder.Default
     private Boolean darkMode = false;
 
     //other settings

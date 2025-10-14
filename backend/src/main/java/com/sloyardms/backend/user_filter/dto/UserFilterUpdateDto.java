@@ -1,6 +1,6 @@
 package com.sloyardms.backend.user_filter.dto;
 
-import jakarta.validation.constraints.AssertTrue;
+import com.sloyardms.backend.common.entity.UpdatableDto;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserFilterUpdateDto {
+public class UserFilterUpdateDto extends UpdatableDto {
 
     @Size(max = 100, message = "{userFilter.filterName.maxSize}")
     private String filterName;
@@ -26,7 +26,7 @@ public class UserFilterUpdateDto {
 
     private Boolean active;
 
-    @AssertTrue(message = "{userFilter.update.atLeastOneFieldProvided}")
+    @Override
     public boolean hasAtLeastOneField() {
         return filterName != null ||
                 urlPattern != null ||

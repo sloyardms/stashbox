@@ -40,6 +40,7 @@ public class ItemGroup extends Auditable {
     @Column(name = "description")
     private String description;
 
+    @Builder.Default
     @Column(name = "is_default", nullable = false)
     private boolean defaultGroup = false;
 

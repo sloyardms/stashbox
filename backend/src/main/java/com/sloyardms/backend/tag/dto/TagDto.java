@@ -1,4 +1,4 @@
-package com.sloyardms.backend.user.dto;
+package com.sloyardms.backend.tag.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,14 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserSettingsDto {
+public class TagDto {
 
-    @Builder.Default
-    private Boolean darkMode = false;
+    private UUID id;
+    private String name;
 
 }
