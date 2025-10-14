@@ -40,6 +40,7 @@ public class User extends Auditable {
     @Column(name = "settings", columnDefinition = "jsonb", nullable = false)
     private UserSettings settings;
 
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<UserFilter> filters = new ArrayList<>();
 

@@ -13,6 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserSettingsDto {
 
+    @Builder.Default
     private Boolean darkMode = false;
 
 }

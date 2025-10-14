@@ -47,6 +47,7 @@ public class UserFilter extends Auditable {
     @Column(name = "extraction_regex", nullable = false)
     private String extractionRegex;
 
+    @Builder.Default
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
