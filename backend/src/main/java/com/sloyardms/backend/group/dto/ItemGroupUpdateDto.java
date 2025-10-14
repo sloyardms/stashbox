@@ -1,7 +1,6 @@
 package com.sloyardms.backend.group.dto;
 
 import com.sloyardms.backend.common.entity.UpdatableDto;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

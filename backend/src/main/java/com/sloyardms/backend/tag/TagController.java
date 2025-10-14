@@ -44,7 +44,7 @@ public class TagController {
 
     @GetMapping
     public ResponseEntity<Page<TagDto>> getAll(
-            @PageableDefault(size = 15, page = 0, sort = "name", direction = Sort.Direction.ASC)
+            @PageableDefault(size = 15, sort = "name", direction = Sort.Direction.ASC)
             Pageable pageable) {
         UUID userExternalId = AuthUtils.getCurrentUserExternalId();
         Page<TagDto> tagList = service.getAllTags(userExternalId, pageable);

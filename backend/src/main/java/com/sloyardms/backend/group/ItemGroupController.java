@@ -45,7 +45,7 @@ public class ItemGroupController {
 
     @GetMapping
     public ResponseEntity<Page<ItemGroupDto>> getAllUserGroups(
-            @PageableDefault(size = 15, page = 0, direction = Sort.Direction.ASC)
+            @PageableDefault(size = 15, direction = Sort.Direction.ASC)
             Pageable pageable) {
 
         Sort sort = Sort.by(
