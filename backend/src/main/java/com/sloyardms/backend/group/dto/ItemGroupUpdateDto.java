@@ -1,5 +1,6 @@
 package com.sloyardms.backend.group.dto;
 
+import com.sloyardms.backend.common.entity.UpdatableDto;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemGroupUpdateDto {
+public class ItemGroupUpdateDto extends UpdatableDto {
 
     @Size(max = 50, message = "{itemGroup.name.maxSize}")
     private String name;
@@ -23,11 +24,10 @@ public class ItemGroupUpdateDto {
 
     private Boolean defaultGroup;
 
-    @AssertTrue(message = "{itemGroup.update.atLeastOneFieldProvided}")
+    @Override
     public boolean hasAtLeastOneField() {
         return name != null ||
                 description != null ||
                 defaultGroup != null;
     }
-
 }
