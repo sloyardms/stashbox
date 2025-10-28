@@ -1,0 +1,46 @@
+name: stashbox
+services:
+  # BACKEND DATABASE
+  postgresql-backend:
+    image: postgres:18.0
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "${BACKEND_DB_NAME:-stashboxdb}"
+      POSTGRES_USER: "${BACKEND_DB_USER:-stashboxdbuser}"
+      POSTGRES_PASSWORD: "${BACKEND_DB_PASSWORD:-stashboxdbpassword}"
+    networks:
+      - stashbox-network
+    ports:
+      - "${BACKEND_DB_PORT}:5432"
+    volumes:
+      - ./data/postgresql_backend:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  # BACKEND
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      postgresql-backend:
+        condition: service_healthy
+    environment:
+      DB_URL: "jdbc:postgresql://postgresql-backend:5432/${BACKEND_DB_NAME}"
+      DB_USER: "${BACKEND_DB_USER}"
+      DB_PASSWORD: "${BACKEND_DB_PASSWORD}"
+      SERVER_PORT: "${BACKEND_SERVER_PORT:-9001}"
+    networks:
+      - stashbox-network
+    env_file:
+      - .env
+    ports:
+      - "${BACKEND_SERVER_PORT}:${BACKEND_SERVER_PORT}"
+
+networks:
+  stashbox-network:
+    driver: bridge
