@@ -1,19 +1,19 @@
 name: stashbox
 services:
   # API DATABASE
-  postgresql-api-db:
+  postgresql-api:
     image: postgres:18.0
     restart: unless-stopped
+    ports:
+      - "${API_DB_PORT}:5432"
+    networks:
+      - stashbox-network
+    volumes:
+      - ./data/postgresql_api:/var/lib/postgresql
     environment:
       POSTGRES_DB: "${API_DB_NAME:-stashboxdb}"
       POSTGRES_USER: "${API_DB_USER:-stashboxdbuser}"
       POSTGRES_PASSWORD: "${API_DB_PASSWORD:-stashboxdbpassword}"
-    networks:
-      - stashbox-network
-    ports:
-      - "${API_DB_PORT}:5432"
-    volumes:
-      - ./data/postgresql_api_db:/var/lib/postgresql
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 30s
@@ -26,20 +26,89 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+    restart: unless-stopped
     depends_on:
-      postgresql-api-db:
+      postgresql-api:
         condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    ports:
+      - "${API_SERVER_PORT}:${API_SERVER_PORT}"
+    networks:
+      - stashbox-network
     environment:
-      DB_URL: "jdbc:postgresql://postgresql-api-db:5432/${API_DB_NAME}"
+      DB_URL: "jdbc:postgresql://postgresql-api:5432/${API_DB_NAME}"
       DB_USER: "${API_DB_USER}"
       DB_PASSWORD: "${API_DB_PASSWORD}"
       SERVER_PORT: "${API_SERVER_PORT:-9001}"
-    networks:
-      - stashbox-network
+      KEYCLOAK_ISSUER_URI: "http://keycloak:8080/realms/stashbox"
     env_file:
       - .env
+
+  # ===========================
+  # Keycloak services
+  # ===========================
+
+  # Keycloak DB
+  postgresql-keycloak:
+    image: postgres:18.0
+    restart: unless-stopped
     ports:
-      - "${API_SERVER_PORT}:${API_SERVER_PORT}"
+      - "${KEYCLOAK_DB_PORT}:5432"
+    networks:
+      - stashbox-network
+    volumes:
+      - ./data/postgresql_keycloak:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: "${KEYCLOAK_DB_NAME:-keycloakdb}"
+      POSTGRES_USER: "${KEYCLOAK_DB_USER:-keycloakdbuser}"
+      POSTGRES_PASSWORD: "${KEYCLOAK_DB_PASSWORD:-keycloakdbpassword}"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  # Keycloak core
+  keycloak:
+    image: keycloak/keycloak:26.4
+    restart: unless-stopped
+    depends_on:
+      postgresql-keycloak:
+        condition: service_healthy
+    ports:
+      - "${KEYCLOAK_PORT}:8080" # HTTP & ADMIN
+    networks:
+      - stashbox-network
+    volumes:
+      - ./config/keycloak:/opt/keycloak/data/import
+    environment:
+      # DB
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgresql-keycloak
+      KC_DB_URL_DATABASE: "${KEYCLOAK_DB_NAME:-keycloak}"
+      KC_DB_USERNAME: "${KEYCLOAK_DB_USER:-keycloakdbuser}"
+      KC_DB_PASSWORD: "${KEYCLOAK_DB_PASSWORD:-keycloakdbpassword}"
+      # Host
+      KC_HOSTNAME: "${KEYCLOAK_EXTERNAL_HOSTNAME:-localhost}"
+      KC_PROXY: edge
+      KC_HOSTNAME_STRICT: 'false'
+      KC_HOSTNAME_STRICT_HTTPS: 'false'
+      KC_HOSTNAME_STRICT_BACKCHANNEL: 'false'
+      # Bootstrap user
+      KC_BOOTSTRAP_ADMIN_USERNAME: "${KEYCLOAK_ADMIN_USER:-keycloakadmin}"
+      KC_BOOTSTRAP_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:-keycloakpassword}"
+    command: >
+      start-dev
+      --import-realm
+      --cache=local
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080;echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3;if [ $? -eq 0 ]; then echo 'Healthcheck Successful';exit 0;else echo 'Healthcheck Failed';exit 1;fi;"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
 
 networks:
   stashbox-network:
