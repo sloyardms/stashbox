@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@Profile("prod")
+@Profile({"prod", "dev"})
 public class ProductionSecurityConfig {
 
     private final KeycloakJwtAuthenticationConverter jwtAuthenticationConverter;
