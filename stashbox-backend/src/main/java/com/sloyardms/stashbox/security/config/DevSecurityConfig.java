@@ -10,7 +10,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@Profile({"dev", "test"})
+@Profile({"dev-fake-user"})
 public class DevSecurityConfig {
 
     @Bean
