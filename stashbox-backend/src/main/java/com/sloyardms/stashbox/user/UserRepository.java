@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-    Optional<User> findByExternalId(String externalId);
+    Optional<User> findByExternalId(UUID externalId);
 
-    Long deleteByExternalId(String externalId);
+    Long deleteByExternalId(UUID externalId);
 
 }
