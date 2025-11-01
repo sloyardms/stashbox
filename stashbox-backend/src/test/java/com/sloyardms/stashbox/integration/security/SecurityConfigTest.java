@@ -14,7 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-@ActiveProfiles("prod")
+@ActiveProfiles("dev")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class SecurityConfigTest extends BaseIntegrationTest {
 
@@ -28,7 +28,7 @@ public class SecurityConfigTest extends BaseIntegrationTest {
     }
 
     @Nested
-    @DisplayName("GET /api/v1/test/public")
+    @DisplayName("GET /api/v1/public/test")
     class GetApiV1PublicTests {
 
         @Test
@@ -36,7 +36,7 @@ public class SecurityConfigTest extends BaseIntegrationTest {
         void getApiV1Public() {
             given()
                     .when()
-                    .get("/api/v1/test/public")
+                    .get("/api/v1/public/test")
                     .then()
                     .statusCode(HttpStatus.OK.value())
                     .body(equalTo("Hello World"));
@@ -45,7 +45,7 @@ public class SecurityConfigTest extends BaseIntegrationTest {
     }
 
     @Nested
-    @DisplayName("GET /api/v1/test/user")
+    @DisplayName("GET /api/v1/user/test")
     class GetApiV1UserTests {
 
         @Test
@@ -53,7 +53,7 @@ public class SecurityConfigTest extends BaseIntegrationTest {
         void shouldReturn200_WhenRegularUserIsAuthenticated() {
             normalUserRequest()
                     .when()
-                    .get("/api/v1/test/user")
+                    .get("/api/v1/user/test")
                     .then()
                     .statusCode(HttpStatus.OK.value())
                     .body(equalTo(NORMAL_USERNAME));
@@ -64,7 +64,7 @@ public class SecurityConfigTest extends BaseIntegrationTest {
         void shouldReturn200_WhenAdminUserIsAuthenticated() {
             adminUserRequest()
                     .when()
-                    .get("/api/v1/test/user")
+                    .get("/api/v1/user/test")
                     .then()
                     .statusCode(HttpStatus.OK.value())
                     .body(equalTo(ADMIN_USERNAME));
@@ -75,7 +75,7 @@ public class SecurityConfigTest extends BaseIntegrationTest {
         void shouldReturn401_WhenUserIsNotAuthenticated() {
             given()
                     .when()
-                    .get("/api/v1/test/user")
+                    .get("/api/v1/user/test")
                     .then()
                     .statusCode(HttpStatus.UNAUTHORIZED.value());
         }
@@ -83,7 +83,7 @@ public class SecurityConfigTest extends BaseIntegrationTest {
     }
 
     @Nested
-    @DisplayName("GET /api/v1/test/admin")
+    @DisplayName("GET /api/v1/admin/test")
     class GetApiV1AdminTests {
 
         @Test
@@ -91,7 +91,7 @@ public class SecurityConfigTest extends BaseIntegrationTest {
         void getApiV1Admin() {
             adminUserRequest()
                     .when()
-                    .get("/api/v1/test/admin")
+                    .get("/api/v1/admin/test")
                     .then()
                     .statusCode(HttpStatus.OK.value())
                     .body(equalTo(ADMIN_USERNAME));
@@ -102,7 +102,7 @@ public class SecurityConfigTest extends BaseIntegrationTest {
         void shouldReturn403_WhenUserIsNotAdmin() {
             normalUserRequest()
                     .when()
-                    .get("/api/v1/test/admin")
+                    .get("/api/v1/admin/test")
                     .then()
                     .statusCode(HttpStatus.FORBIDDEN.value());
         }
@@ -112,7 +112,7 @@ public class SecurityConfigTest extends BaseIntegrationTest {
         void shouldReturn401_WhenUserIsNotAuthenticated() {
             given()
                     .when()
-                    .get("/api/v1/test/admin")
+                    .get("/api/v1/admin/test")
                     .then()
                     .statusCode(HttpStatus.UNAUTHORIZED.value());
         }
