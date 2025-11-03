@@ -105,11 +105,12 @@ CREATE TABLE tags (
     normalized_name TEXT NOT NULL,
     slug TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+
+    CONSTRAINT tags_name_unique UNIQUE (user_id, normalized_name),
+    CONSTRAINT tags_slug_unique UNIQUE (user_id, slug)
 );
 CREATE INDEX tags_user_id_index ON tags(user_id);
-CREATE UNIQUE INDEX tags_name_unique_idx ON tags (user_id, normalized_name);
-CREATE UNIQUE INDEX tags_slug_unique_idx ON tags (user_id, slug);
 
 -- Item Tags (many-to-many)
 CREATE TABLE item_tags (
