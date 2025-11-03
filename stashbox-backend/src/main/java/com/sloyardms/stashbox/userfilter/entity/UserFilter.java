@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
@@ -31,6 +32,10 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name = "user_filters",
+        indexes = {
+                @Index(name = "user_filters_user_id", columnList = "user_id"),
+                @Index(name = "user_filters_user_id_active", columnList = "user_id, active")
+        },
         uniqueConstraints = {
                 @UniqueConstraint(name = "user_filters_normalized_filter_name_unique", columnNames = {"user_id",
                         "normalized_filter_name"}),
