@@ -1,4 +1,4 @@
-package com.sloyardms.stashbox.itemgroup.entity;
+package com.sloyardms.stashbox.itemtag.entity;
 
 import com.sloyardms.stashbox.common.entity.Auditable;
 import com.sloyardms.stashbox.user.entity.User;
@@ -28,18 +28,18 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Entity
-@Table(name = "item_groups",
+@Table(name = "tags",
         indexes = {
-                @Index(name = "item_groups_user_id_index", columnList = "user_id")
+                @Index(name = "tags_user_id_index", columnList = "user_id")
         },
         uniqueConstraints = {
-                @UniqueConstraint(name = "item_groups_name_unique", columnNames = {"user_id",
+                @UniqueConstraint(name = "tags_name_unique", columnNames = {"user_id",
                         "normalized_name"}),
-                @UniqueConstraint(name = "item_groups_slug_unique", columnNames = {"user_id",
+                @UniqueConstraint(name = "tags_slug_unique", columnNames = {"user_id",
                         "slug"})
         }
 )
-public class ItemGroup extends Auditable {
+public class ItemTag extends Auditable {
 
     @Id
     @Column(name = "id", nullable = false, updatable = false)
@@ -61,13 +61,5 @@ public class ItemGroup extends Auditable {
     @Column(name = "slug", nullable = false, length = 75)
     @ToString.Include
     private String slug;
-
-    @Column(name = "description", length = 255)
-    @ToString.Include
-    private String description;
-
-    @Column(name = "is_default", nullable = false)
-    @ToString.Include
-    private boolean defaultGroup = false;
 
 }
