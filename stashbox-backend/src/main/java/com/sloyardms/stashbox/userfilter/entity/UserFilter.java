@@ -1,4 +1,4 @@
-package com.sloyardms.stashbox.user_filter.entity;
+package com.sloyardms.stashbox.userfilter.entity;
 
 import com.sloyardms.stashbox.common.entity.Auditable;
 import com.sloyardms.stashbox.user.entity.User;

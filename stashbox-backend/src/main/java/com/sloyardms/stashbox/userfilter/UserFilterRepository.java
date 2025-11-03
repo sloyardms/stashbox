@@ -1,6 +1,6 @@
-package com.sloyardms.stashbox.user_filter;
+package com.sloyardms.stashbox.userfilter;
 
-import com.sloyardms.stashbox.user_filter.entity.UserFilter;
+import com.sloyardms.stashbox.userfilter.entity.UserFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
