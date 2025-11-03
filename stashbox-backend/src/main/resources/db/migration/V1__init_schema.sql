@@ -39,6 +39,8 @@ CREATE TABLE user_filters (
     CONSTRAINT user_filters_priority_positive CHECK (priority >= 0),
     CONSTRAINT user_filters_capture_group_positive CHECK (capture_group_index > 0)
 );
+CREATE INDEX user_filters_user_id_index ON user_filters(user_id);
+CREATE INDEX user_filters_user_id_active_index ON user_filters(user_id, is_active);
 
 -- Item Groups
 CREATE TABLE item_groups (
@@ -50,11 +52,12 @@ CREATE TABLE item_groups (
     description TEXT,
     is_default BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+
+    CONSTRAINT item_groups_name_unique UNIQUE (user_id, normalized_name),
+    CONSTRAINT item_groups_slug_unique UNIQUE (user_id, slug)
 );
 CREATE INDEX item_groups_user_id_index ON item_groups(user_id);
-CREATE UNIQUE INDEX item_groups_name_unique_idx ON item_groups (user_id, normalized_name);
-CREATE UNIQUE INDEX item_groups_slug_unique_idx ON item_groups (user_id, slug);
 
 
 -- Item Images

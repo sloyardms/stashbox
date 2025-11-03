@@ -1,7 +1,7 @@
 package com.sloyardms.stashbox.user.entity;
 
 import com.sloyardms.stashbox.common.entity.Auditable;
-import com.sloyardms.stashbox.user_filter.entity.UserFilter;
+import com.sloyardms.stashbox.userfilter.entity.UserFilter;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

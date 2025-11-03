@@ -1,4 +1,4 @@
-package com.sloyardms.stashbox.user;
+package com.sloyardms.stashbox.user.repository;
 
 import com.sloyardms.stashbox.user.entity.User;
 import org.springframework.cache.annotation.Cacheable;
