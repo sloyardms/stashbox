@@ -51,18 +51,23 @@ public class ItemGroup extends Auditable {
     private User user;
 
     @Column(name = "name", nullable = false, length = 50)
+    @ToString.Include
     private String name;
 
     @Column(name = "normalized_name", nullable = false, length = 50)
+    @ToString.Include
     private String normalizedName;
 
     @Column(name = "slug", nullable = false, length = 75)
+    @ToString.Include
     private String slug;
 
     @Column(name = "description", length = 255)
+    @ToString.Include
     private String description;
 
     @Column(name = "is_default", nullable = false)
+    @ToString.Include
     private boolean defaultGroup = false;
 
 }
