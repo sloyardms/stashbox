@@ -1,9 +1,13 @@
 package com.sloyardms.stashbox.user.entity;
 
 import com.sloyardms.stashbox.common.entity.Auditable;
+import com.sloyardms.stashbox.user_filter.entity.UserFilter;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
@@ -16,6 +20,8 @@ import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -49,5 +55,8 @@ public class User extends Auditable {
     @Builder.Default
     @JdbcTypeCode(SqlTypes.JSON)
     private UserSettings settings = new UserSettings();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<UserFilter> filters = new ArrayList<>();
 
 }
