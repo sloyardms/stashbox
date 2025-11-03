@@ -15,15 +15,30 @@ CREATE TABLE users (
 CREATE TABLE user_filters (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    -- Filter identification
     filter_name TEXT NOT NULL,
+    normalized_filter_name TEXT NOT NULL,
+    description TEXT,
+    -- Pattern matching
     url_pattern TEXT NOT NULL,
+    normalized_url_pattern TEXT NOT NULL,
+    domain_filter TEXT,
     extraction_regex TEXT NOT NULL,
+    capture_group_index INTEGER NOT NULL DEFAULT 1,
+    -- Ordering and state
+    priority INTEGER NOT NULL DEFAULT 0,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    -- Usage statistics
+    match_count BIGINT NOT NULL DEFAULT 0,
+    last_matched_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+
+    CONSTRAINT user_filters_normalized_filter_name_unique UNIQUE (user_id, normalized_filter_name),
+    CONSTRAINT user_filters_normalized_url_pattern_unique UNIQUE (user_id, normalized_url_pattern),
+    CONSTRAINT user_filters_priority_positive CHECK (priority >= 0),
+    CONSTRAINT user_filters_capture_group_positive CHECK (capture_group_index > 0)
 );
-CREATE INDEX user_filters_user_id_index ON user_filters(user_id);
-CREATE UNIQUE INDEX user_filter_url_pattern_unique_idx ON user_filters (user_id, LOWER(url_pattern));
 
 -- Item Groups
 CREATE TABLE item_groups (
