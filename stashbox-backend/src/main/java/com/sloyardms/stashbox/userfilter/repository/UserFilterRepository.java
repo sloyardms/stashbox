@@ -1,4 +1,4 @@
-package com.sloyardms.stashbox.userfilter;
+package com.sloyardms.stashbox.userfilter.repository;
 
 import com.sloyardms.stashbox.userfilter.entity.UserFilter;
 import org.springframework.data.domain.Page;
