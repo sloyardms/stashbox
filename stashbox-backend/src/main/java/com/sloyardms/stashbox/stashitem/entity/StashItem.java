@@ -2,6 +2,8 @@ package com.sloyardms.stashbox.stashitem.entity;
 
 import com.sloyardms.stashbox.common.entity.Auditable;
 import com.sloyardms.stashbox.itemgroup.entity.ItemGroup;
+import com.sloyardms.stashbox.itemimage.entity.ItemImage;
+import com.sloyardms.stashbox.itemtag.entity.ItemTag;
 import com.sloyardms.stashbox.user.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -10,10 +12,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,8 +24,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -47,8 +53,8 @@ public class StashItem extends Auditable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "group_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id")
     private ItemGroup group;
 
     @Column(name = "title", length = 255)
@@ -73,13 +79,21 @@ public class StashItem extends Auditable {
 
     @Column(name = "is_favorite", nullable = false)
     @ToString.Include
-    private Boolean favorite = false;
+    private boolean favorite = false;
 
-    @Column(name = "image_id", columnDefinition = "UUID")
-    private UUID imageId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "image_id", unique = true)
+    private ItemImage image;
 
     @Column(name = "deleted_at")
     @ToString.Include
     private OffsetDateTime deletedAt;
+
+    @Builder.Default
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinTable(name = "item_tags",
+            joinColumns = @JoinColumn(name = "item_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private List<ItemTag> tags = new ArrayList<>();
 
 }
