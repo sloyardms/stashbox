@@ -132,7 +132,6 @@ CREATE TABLE item_notes (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
-CREATE INDEX item_notes_user_id_index ON item_notes(user_id);
 CREATE INDEX item_notes_item_user_created_index ON item_notes(item_id, user_id, created_at DESC);
 
 -- Note Files
