@@ -47,7 +47,7 @@ public class ItemNote extends Auditable {
     private User user;
 
     @ToString.Include
-    @Column(name = "note", columnDefinition = "TEXT", length = 500)
+    @Column(name = "note", length = 500)
     private String note;
 
 }
