@@ -76,7 +76,7 @@ CREATE TABLE item_images (
 CREATE TABLE stash_items (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    group_id UUID NOT NULL REFERENCES item_groups(id),
+    group_id UUID REFERENCES item_groups(id) ON DELETE SET NULL,
     title TEXT,
     normalized_title TEXT,
     slug TEXT,
@@ -88,14 +88,15 @@ CREATE TABLE stash_items (
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     deleted_at TIMESTAMP WITH TIME ZONE
 );
-CREATE INDEX stash_items_user_id_index ON stash_items(user_id);
-CREATE INDEX stash_items_group_id_index ON stash_items(group_id);
-CREATE INDEX stash_items_favorites_index ON stash_items(user_id, is_favorite) WHERE is_favorite = TRUE;
-CREATE INDEX stash_items_active_items_idx ON stash_items(user_id, group_id) WHERE deleted_at IS NULL;
-CREATE INDEX stash_items_group_id_created_at_index ON stash_items(group_id, created_at DESC);
-CREATE UNIQUE INDEX stash_items_user_id_url_unique ON stash_items (user_id, url);
-CREATE UNIQUE INDEX stash_items_title_unique_idx ON stash_items (user_id, normalized_title);
-CREATE UNIQUE INDEX stash_items_slug_unique_idx ON stash_items (user_id, slug);
+ALTER TABLE stash_items ADD CONSTRAINT stash_items_content_check CHECK (url IS NOT NULL OR description IS NOT NULL OR image_id IS NOT NULL);
+
+CREATE UNIQUE INDEX stash_items_user_id_url_active_unique ON stash_items(user_id, url) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX stash_items_user_id_title_active_unique ON stash_items(user_id, normalized_title) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX stash_items_user_id_slug_active_unique ON stash_items(user_id, slug) WHERE deleted_at IS NULL;
+
+CREATE INDEX stash_items_user_created_active_index ON stash_items(user_id, created_at DESC) WHERE deleted_at IS NULL;
+CREATE INDEX stash_items_user_group_created_active_index ON stash_items(user_id, group_id, created_at DESC) WHERE deleted_at IS NULL;
+CREATE INDEX stash_items_favorites_by_group_index ON stash_items(user_id, group_id, created_at DESC) WHERE is_favorite = TRUE AND deleted_at IS NULL;
 
 -- Tags
 CREATE TABLE tags (
