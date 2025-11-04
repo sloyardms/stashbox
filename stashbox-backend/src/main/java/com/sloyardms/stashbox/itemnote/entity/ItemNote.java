@@ -35,6 +35,7 @@ public class ItemNote extends Auditable {
 
     @Id
     @Column(name = "id")
+    @ToString.Include
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -45,6 +46,7 @@ public class ItemNote extends Auditable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ToString.Include
     @Column(name = "note", columnDefinition = "TEXT", length = 500)
     private String note;
 
