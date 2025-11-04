@@ -32,7 +32,7 @@ import java.util.UUID;
 @Builder
 @EntityListeners(AuditingEntityListener.class)
 @Entity
-@Table(name = "item_notes", indexes = {
+@Table(name = "note_files", indexes = {
         @Index(name = "note_files_note_order_unique", columnList = "note_id, display_order")
 })
 public class NoteFile {
