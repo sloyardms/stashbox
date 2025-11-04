@@ -1,8 +1,10 @@
 package com.sloyardms.stashbox.itemnote.entity;
 
 import com.sloyardms.stashbox.common.entity.Auditable;
+import com.sloyardms.stashbox.notefile.entity.NoteFile;
 import com.sloyardms.stashbox.stashitem.entity.StashItem;
 import com.sloyardms.stashbox.user.entity.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,6 +22,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -49,5 +54,10 @@ public class ItemNote extends Auditable {
     @ToString.Include
     @Column(name = "note", length = 500)
     private String note;
+
+    @Builder.Default
+    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @JoinColumn(name = "note_id")
+    private List<NoteFile> noteFiles = new ArrayList<>();
 
 }
