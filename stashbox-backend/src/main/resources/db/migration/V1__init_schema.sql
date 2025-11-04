@@ -63,6 +63,7 @@ CREATE INDEX item_groups_user_id_index ON item_groups(user_id);
 -- Item Images
 CREATE TABLE item_images (
     id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     original_filename TEXT NOT NULL,
     stored_filename TEXT NOT NULL,
     file_path TEXT NOT NULL,
@@ -71,6 +72,8 @@ CREATE TABLE item_images (
     file_extension TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
+
+CREATE INDEX item_images_user_id_index ON item_images(user_id);
 
 -- Items (stash_items)
 CREATE TABLE stash_items (
