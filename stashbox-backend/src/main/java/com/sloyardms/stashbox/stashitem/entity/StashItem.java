@@ -3,6 +3,7 @@ package com.sloyardms.stashbox.stashitem.entity;
 import com.sloyardms.stashbox.common.entity.Auditable;
 import com.sloyardms.stashbox.itemgroup.entity.ItemGroup;
 import com.sloyardms.stashbox.itemimage.entity.ItemImage;
+import com.sloyardms.stashbox.itemnote.entity.ItemNote;
 import com.sloyardms.stashbox.itemtag.entity.ItemTag;
 import com.sloyardms.stashbox.user.entity.User;
 import jakarta.persistence.CascadeType;
@@ -15,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -24,7 +26,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.SQLRestriction;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -41,7 +42,8 @@ import java.util.UUID;
 @Table(name = "stash_items", indexes = {
         @Index(name = "stash_items_user_created_active_index", columnList = "user_id, created_at"),
         @Index(name = "stash_items_user_group_created_active_index", columnList = "user_id, group_id, created_at"),
-        @Index(name = "stash_items_favorites_by_group_index", columnList = "user_id, group_id, created_at, is_favorite"),
+        @Index(name = "stash_items_favorites_by_group_index", columnList = "user_id, group_id, created_at, " +
+                "is_favorite"),
 })
 public class StashItem extends Auditable {
 
@@ -95,5 +97,10 @@ public class StashItem extends Auditable {
             joinColumns = @JoinColumn(name = "item_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private List<ItemTag> tags = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
+    private List<ItemNote> notes = new ArrayList<>();
 
 }

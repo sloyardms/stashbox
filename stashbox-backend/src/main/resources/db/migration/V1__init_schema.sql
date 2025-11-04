@@ -114,7 +114,6 @@ CREATE TABLE tags (
     CONSTRAINT tags_name_unique UNIQUE (user_id, normalized_name),
     CONSTRAINT tags_slug_unique UNIQUE (user_id, slug)
 );
-CREATE INDEX tags_user_id_index ON tags(user_id);
 
 -- Item Tags (many-to-many)
 CREATE TABLE item_tags (
@@ -122,17 +121,18 @@ CREATE TABLE item_tags (
     tag_id UUID NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
     PRIMARY KEY (item_id, tag_id)
 );
-CREATE INDEX item_tags_tag_id_idx ON item_tags (tag_id);
+CREATE INDEX item_tags_tag_item_idx ON item_tags(tag_id, item_id);
 
 -- Item Notes
 CREATE TABLE item_notes (
     id UUID PRIMARY KEY,
     item_id UUID NOT NULL REFERENCES stash_items(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     note TEXT,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
-CREATE INDEX item_notes_item_id_index ON item_notes(item_id);
+CREATE INDEX item_notes_item_user_created_index ON item_notes(item_id, user_id, created_at DESC);
 
 -- Note Files
 CREATE TABLE note_files (
