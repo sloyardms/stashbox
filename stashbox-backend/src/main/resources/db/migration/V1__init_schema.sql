@@ -138,12 +138,14 @@ CREATE INDEX item_notes_item_user_created_index ON item_notes(item_id, user_id, 
 CREATE TABLE note_files (
     id UUID PRIMARY KEY,
     note_id UUID NOT NULL REFERENCES item_notes(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     original_filename TEXT NOT NULL,
     stored_filename TEXT NOT NULL,
     file_path TEXT NOT NULL,
     mime_type TEXT NOT NULL,
     file_size BIGINT NOT NULL,
     file_extension TEXT NOT NULL,
+    display_order INTEGER NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
-CREATE INDEX note_files_note_id_index ON note_files(note_id);
+CREATE UNIQUE INDEX note_files_note_order_unique ON note_files(note_id, display_order);
