@@ -72,11 +72,11 @@ public class UserFilter extends Auditable {
     @ToString.Include
     private String normalizedUrlPattern;
 
-    @Column(name = "domain_filter", length = 255)
+    @Column(name = "domain_filter", nullable = false, length = 255)
     @ToString.Include
     private String domainFilter;
 
-    @Column(name = "extraction_regex", length = 1000)
+    @Column(name = "extraction_regex", nullable = false, length = 1000)
     @ToString.Include
     private String extractionRegex;
 
