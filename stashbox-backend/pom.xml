@@ -32,6 +32,8 @@
         <testcontainers-postgresql.version>1.20.0</testcontainers-postgresql.version>
         <testcontainers-keycloak.version>3.4.0</testcontainers-keycloak.version>
         <caffeine.version>3.2.3</caffeine.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <mapstruct-processor.version>1.6.3</mapstruct-processor.version>
     </properties>
 
     <dependencies>
@@ -132,6 +134,20 @@
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
             <version>${caffeine.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct-processor -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>${mapstruct-processor.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
