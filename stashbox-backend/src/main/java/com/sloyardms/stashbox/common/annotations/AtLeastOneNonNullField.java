@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface AtLeastOneNonNullField {
 
-    String message() default "{update.request.atLeastOneFieldProvided}";
+    String message() default "At least one field must be provided";
 
     Class<?>[] groups() default {};
 
