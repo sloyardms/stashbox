@@ -22,7 +22,7 @@ CREATE TABLE user_filters (
     -- Pattern matching
     url_pattern TEXT NOT NULL,
     normalized_url_pattern TEXT NOT NULL,
-    domain_filter TEXT,
+    domain_filter TEXT NOT NULL,
     extraction_regex TEXT NOT NULL,
     capture_group_index INTEGER NOT NULL DEFAULT 1,
     -- Ordering and state
