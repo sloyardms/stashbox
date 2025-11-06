@@ -1,6 +1,6 @@
 package com.sloyardms.stashbox.user.dto;
 
-import jakarta.validation.constraints.AssertTrue;
+import com.sloyardms.stashbox.common.annotations.AtLeastOneNonNullField;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,13 +13,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@AtLeastOneNonNullField
 public class UpdateUserSettingsRequest {
 
     private Boolean darkMode;
-
-    @AssertTrue(message = "{update.request.atLeastOneFieldProvided}")
-    public boolean hasAtLeastOneField() {
-        return darkMode != null;
-    }
 
 }
