@@ -50,7 +50,6 @@ CREATE TABLE item_groups (
     normalized_name TEXT NOT NULL,
     slug TEXT NOT NULL,
     description TEXT,
-    is_default BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
 
