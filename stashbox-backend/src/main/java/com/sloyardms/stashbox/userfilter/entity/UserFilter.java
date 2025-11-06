@@ -100,23 +100,4 @@ public class UserFilter extends Auditable {
     @ToString.Include
     private Instant lastMatchedAt;
 
-    @PrePersist
-    public void prePersist() {
-        this.normalizedFilterName = toLowerCase(this.filterName);
-        this.normalizedUrlPattern = toLowerCase(this.urlPattern);
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.normalizedFilterName = toLowerCase(this.filterName);
-        this.normalizedUrlPattern = toLowerCase(this.urlPattern);
-    }
-
-    private String toLowerCase(String value) {
-        if (value != null) {
-            return value.trim().toLowerCase();
-        }
-        return value;
-    }
-
 }
