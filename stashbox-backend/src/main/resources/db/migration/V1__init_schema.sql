@@ -133,6 +133,13 @@ CREATE TABLE item_notes (
 );
 CREATE INDEX item_notes_item_user_created_index ON item_notes(item_id, user_id, created_at DESC);
 
+CREATE TYPE upload_status_enum AS ENUM (
+    'PENDING',
+    'PROCESSING',
+    'COMPLETE',
+    'FAILED'
+);
+
 -- Note Files
 CREATE TABLE note_files (
     id UUID PRIMARY KEY,
@@ -144,6 +151,7 @@ CREATE TABLE note_files (
     mime_type TEXT NOT NULL,
     file_size BIGINT NOT NULL,
     file_extension TEXT NOT NULL,
+    upload_status upload_status_enum NOT NULL DEFAULT 'PENDING',
     display_order INTEGER NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
