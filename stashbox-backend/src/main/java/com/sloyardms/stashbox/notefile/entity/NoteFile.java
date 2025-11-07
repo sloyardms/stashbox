@@ -5,6 +5,8 @@ import com.sloyardms.stashbox.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
@@ -73,6 +75,10 @@ public class NoteFile {
     @Column(name = "file_extension", nullable = false, length = 10)
     @ToString.Include
     private String fileExtension;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "upload_status", nullable = false)
+    private UploadStatus uploadStatus = UploadStatus.PENDING;
 
     @Column(name = "display_order", nullable = false)
     @ToString.Include
