@@ -13,6 +13,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface UserFilterMapper {
 
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "normalizedUrlPattern", ignore = true)
     @Mapping(target = "normalizedFilterName", ignore = true)
@@ -20,21 +22,19 @@ public interface UserFilterMapper {
     @Mapping(target = "lastMatchedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
     UserFilter toEntity(CreateUserFilterRequest createUserFilterRequest);
 
-    UserFilterResponse toResponse(UserFilter userFilter);
-
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "normalizedUrlPattern", ignore = true)
     @Mapping(target = "normalizedFilterName", ignore = true)
     @Mapping(target = "matchCount", ignore = true)
     @Mapping(target = "lastMatchedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
     UserFilter updateFromRequest(UpdateUserFilterRequest updateUserFilterRequest, @MappingTarget UserFilter userFilter);
+
+    UserFilterResponse toResponse(UserFilter userFilter);
 
 }

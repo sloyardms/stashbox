@@ -14,15 +14,17 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface ItemTagMapper {
 
-
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "slug", ignore = true)
     @Mapping(target = "normalizedName", ignore = true)
     @Mapping(target = "id", ignore = true)
     ItemTag toEntity(CreateItemTagRequest createItemTagRequest);
 
-
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "slug", ignore = true)
     @Mapping(target = "normalizedName", ignore = true)
