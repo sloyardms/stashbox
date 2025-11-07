@@ -34,14 +34,14 @@ public interface StashItemMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "user", source = "")
-    @Mapping(target = "slug", source = "")
-    @Mapping(target = "notes", source = "")
-    @Mapping(target = "normalizedTitle", source = "")
-    @Mapping(target = "image", source = "")
-    @Mapping(target = "id", source = "")
-    @Mapping(target = "group", source = "")
-    @Mapping(target = "deletedAt", source = "")
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "slug", ignore = true)
+    @Mapping(target = "notes", ignore = true)
+    @Mapping(target = "normalizedTitle", ignore = true)
+    @Mapping(target = "image", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "group", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
     StashItem updateFromRequest(UpdateStashItemRequest updateStashItemRequest, @MappingTarget StashItem stashItem);
 
     StashItemResponse toResponse(StashItem stashItem);
