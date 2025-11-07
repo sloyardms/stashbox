@@ -72,11 +72,11 @@ public class UserFilter extends Auditable {
     @ToString.Include
     private String normalizedUrlPattern;
 
-    @Column(name = "domain_filter", length = 255)
+    @Column(name = "domain_filter", nullable = false, length = 255)
     @ToString.Include
     private String domainFilter;
 
-    @Column(name = "extraction_regex", length = 1000)
+    @Column(name = "extraction_regex", nullable = false, length = 1000)
     @ToString.Include
     private String extractionRegex;
 
@@ -99,24 +99,5 @@ public class UserFilter extends Auditable {
     @Column(name = "last_matched_at")
     @ToString.Include
     private Instant lastMatchedAt;
-
-    @PrePersist
-    public void prePersist() {
-        this.normalizedFilterName = toLowerCase(this.filterName);
-        this.normalizedUrlPattern = toLowerCase(this.urlPattern);
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.normalizedFilterName = toLowerCase(this.filterName);
-        this.normalizedUrlPattern = toLowerCase(this.urlPattern);
-    }
-
-    private String toLowerCase(String value) {
-        if (value != null) {
-            return value.trim().toLowerCase();
-        }
-        return value;
-    }
 
 }

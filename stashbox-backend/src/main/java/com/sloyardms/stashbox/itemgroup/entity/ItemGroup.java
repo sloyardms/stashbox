@@ -66,8 +66,4 @@ public class ItemGroup extends Auditable {
     @ToString.Include
     private String description;
 
-    @Column(name = "is_default", nullable = false)
-    @ToString.Include
-    private boolean defaultGroup = false;
-
 }
