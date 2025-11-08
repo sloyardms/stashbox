@@ -34,6 +34,7 @@
         <caffeine.version>3.2.3</caffeine.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <mapstruct-processor.version>1.6.3</mapstruct-processor.version>
+        <slugify.version>3.0.7</slugify.version>
     </properties>
 
     <dependencies>
@@ -129,6 +130,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
@@ -149,6 +151,14 @@
             <version>${mapstruct-processor.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.github.slugify/slugify -->
+        <dependency>
+            <groupId>com.github.slugify</groupId>
+            <artifactId>slugify</artifactId>
+            <version>${slugify.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
