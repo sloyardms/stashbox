@@ -51,6 +51,10 @@ public class User extends Auditable {
     @ToString.Include
     private String username;
 
+    @Column(name = "email", unique = true, nullable = false)
+    @ToString.Include
+    private String email;
+
     @Column(name = "settings", columnDefinition = "jsonb", nullable = false)
     @Builder.Default
     @JdbcTypeCode(SqlTypes.JSON)
