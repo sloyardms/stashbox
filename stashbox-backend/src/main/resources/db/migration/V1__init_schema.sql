@@ -3,12 +3,14 @@ CREATE TABLE users (
     id UUID PRIMARY KEY,
     external_id UUID NOT NULL,
     username TEXT NOT NULL,
+    email TEXT NOT NULL,
     settings JSONB NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
 
     CONSTRAINT users_external_id_unique UNIQUE (external_id),
-    CONSTRAINT users_username_unique UNIQUE (username)
+    CONSTRAINT users_username_unique UNIQUE (username),
+    CONSTRAINT users_email_unique UNIQUE (email)
 );
 
 -- User Filters
