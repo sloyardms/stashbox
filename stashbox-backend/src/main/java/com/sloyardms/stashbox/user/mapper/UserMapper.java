@@ -1,7 +1,7 @@
 package com.sloyardms.stashbox.user.mapper;
 
-import com.sloyardms.stashbox.user.dto.UserResponse;
 import com.sloyardms.stashbox.user.dto.AdminUserResponse;
+import com.sloyardms.stashbox.user.dto.UserResponse;
 import com.sloyardms.stashbox.user.entity.User;
 import org.mapstruct.Mapper;
 
@@ -10,6 +10,6 @@ public interface UserMapper {
 
     UserResponse toResponse(User user);
 
-    AdminUserResponse toSummaryResponse(User user);
+    AdminUserResponse toAdminResponse(User user);
 
 }
