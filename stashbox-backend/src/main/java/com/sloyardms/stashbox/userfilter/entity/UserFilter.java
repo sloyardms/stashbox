@@ -34,9 +34,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "user_filters",
         indexes = {
-                @Index(name = "user_filters_user_id", columnList = "user_id"),
-                @Index(name = "user_filters_user_id_active", columnList = "user_id, active"),
-                @Index(name = "user_filters_user_id_domain_index", columnList = "user_id, domain")
+                @Index(name = "user_filters_user_id", columnList = "user_id")
         },
         uniqueConstraints = {
                 @UniqueConstraint(name = "user_filters_normalized_filter_name_unique", columnNames = {"user_id",

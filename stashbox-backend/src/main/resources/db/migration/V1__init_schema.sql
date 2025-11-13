@@ -42,8 +42,6 @@ CREATE TABLE user_filters (
     CONSTRAINT user_filters_capture_group_positive CHECK (capture_group_index > 0)
 );
 CREATE INDEX user_filters_user_id_index ON user_filters(user_id);
-CREATE INDEX user_filters_user_id_active_index ON user_filters(user_id, is_active);
-CREATE INDEX user_filters_user_id_domain_index ON user_filters(user_id, domain);
 
 -- Item Groups
 CREATE TABLE item_groups (
