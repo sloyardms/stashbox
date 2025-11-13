@@ -24,10 +24,10 @@ public interface UserFilterRepository extends UserScopedRepository<UserFilter, U
                             @Param("matchedAt") Instant matchedAt);
 
     @Query("""
-            SELECT DISTINCT uf.domainFilter 
-            FROM UserFilter uf 
-            WHERE uf.user.externalId = :userExternalId 
-            ORDER BY uf.domainFilter
+            SELECT DISTINCT uf.domain
+            FROM UserFilter uf
+            WHERE uf.user.externalId = :userExternalId
+            ORDER BY uf.domain
             """)
     List<String> findDistinctDomainsByUserExternalId(@Param("userExternalId") UUID userExternalId);
 
