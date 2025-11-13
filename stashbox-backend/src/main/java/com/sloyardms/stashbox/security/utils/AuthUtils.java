@@ -1,6 +1,5 @@
 package com.sloyardms.stashbox.security.utils;
 
-import com.sloyardms.stashbox.security.model.DevUserPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -24,10 +23,6 @@ public class AuthUtils {
     public static UUID getCurrentUserExternalId() {
         Authentication auth = getAuthentication();
         Object principal = auth.getPrincipal();
-
-        if (principal instanceof DevUserPrincipal fakeUser) {
-            return fakeUser.getUserId();
-        }
 
         if (principal instanceof Jwt jwt) {
             String subject = jwt.getSubject();
@@ -58,11 +53,6 @@ public class AuthUtils {
     public static String getCurrentUsername() {
         Authentication auth = getAuthentication();
         Object principal = auth.getPrincipal();
-
-        // For dev/test environment
-        if (principal instanceof DevUserPrincipal fake) {
-            return fake.getUsername();
-        }
 
         // For JWT tokens
         if (principal instanceof Jwt jwt) {
@@ -100,11 +90,6 @@ public class AuthUtils {
     public static String getCurrentUserEmail() {
         Authentication auth = getAuthentication();
         Object principal = auth.getPrincipal();
-
-        // For dev/test environment
-        if (principal instanceof DevUserPrincipal fake) {
-            return fake.getUsername();
-        }
 
         // For JWT tokens
         if (principal instanceof Jwt jwt) {
