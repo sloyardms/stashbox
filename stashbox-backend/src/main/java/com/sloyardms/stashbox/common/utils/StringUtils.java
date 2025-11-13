@@ -5,7 +5,7 @@ import com.github.slugify.Slugify;
 import java.text.Normalizer;
 import java.util.Locale;
 
-public class StringUtils {
+public final class StringUtils {
 
     private static final Slugify SLUGIFY = Slugify.builder()
             .transliterator(true)
@@ -13,7 +13,7 @@ public class StringUtils {
             .build();
 
     private StringUtils() {
-
+        throw new UnsupportedOperationException("Utility class cannot be instantiated");
     }
 
     /**
