@@ -1,6 +1,7 @@
 package com.sloyardms.stashbox.common.error;
 
 import com.sloyardms.stashbox.common.error.exception.BusinessException;
+import com.sloyardms.stashbox.common.error.exception.InvalidSortFieldException;
 import com.sloyardms.stashbox.common.error.exception.ResourceAlreadyExistsException;
 import com.sloyardms.stashbox.common.error.exception.ResourceNotFoundException;
 import com.sloyardms.stashbox.config.messages.ErrorMessageKey;
@@ -539,6 +540,35 @@ public class GlobalExceptionHandler {
                 errorId, request.getRequestURI(), getSafeExceptionMessage(ex));
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
+    }
+
+    @ExceptionHandler(InvalidSortFieldException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidSortFieldException(
+            InvalidSortFieldException ex, HttpServletRequest request, Locale locale) {
+
+        String title = getMessage(ErrorMessageKey.INVALID_SORT_FIELD_TITLE, locale);
+        String detailTemplate = getMessage(ErrorMessageKey.INVALID_SORT_FIELD_DETAIL, locale);
+
+        String detail = String.format(detailTemplate,
+                ex.getInvalidField(),
+                String.join(", ", ex.getAllowedFields()));
+
+        ProblemDetail problemDetail = createProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "urn:problem-type:invalid-sort-field",
+                title,
+                detail,
+                request
+        );
+
+        problemDetail.setProperty("invalidField", ex.getInvalidField());
+        problemDetail.setProperty("allowedFields", ex.getAllowedFields());
+
+        String errorId = getErrorId(problemDetail);
+        log.error("[{}] Invalid Sort Field '{}' on {}. Allowed: {}",
+                errorId, ex.getInvalidField(), request.getRequestURI(), ex.getAllowedFields());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
 
     /**

@@ -40,7 +40,9 @@ public enum ErrorMessageKey {
     NO_HANDLER_FOUND_TITLE("error.endpoint-not-found.title"),
     NO_HANDLER_FOUND_DETAIL("error.endpoint-not-found.detail"),
     DATABASE_ERROR_TITLE("error.database.title"),
-    DATABASE_ERROR_DETAIL("error.database.detail");
+    DATABASE_ERROR_DETAIL("error.database.detail"),
+    INVALID_SORT_FIELD_TITLE("error.invalid-sort-field.title"),
+    INVALID_SORT_FIELD_DETAIL("error.invalid-sort-field.detail");
 
     private final String key;
 
