@@ -29,8 +29,8 @@ public class UpdateUserFilterRequest {
     @Size(max = 2048, message = "{userFilter.urlPattern.maxSize}")
     private String urlPattern;
 
-    @Size(max = 255, message = "{userFilter.domainFilter.maxSize}")
-    private String domainFilter;
+    @Size(max = 255, message = "{userFilter.domain.maxSize}")
+    private String domain;
 
     @Size(max = 1000, message = "{userFilter.extractionRegex.maxSize}")
     @ValidRegex(message = "{userFilter.extractionRegex.invalid}")
