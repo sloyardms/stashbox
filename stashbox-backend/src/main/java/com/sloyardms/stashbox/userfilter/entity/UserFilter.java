@@ -1,6 +1,7 @@
 package com.sloyardms.stashbox.userfilter.entity;
 
 import com.sloyardms.stashbox.common.entity.Auditable;
+import com.sloyardms.stashbox.common.utils.StringUtils;
 import com.sloyardms.stashbox.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,7 +35,8 @@ import java.util.UUID;
 @Table(name = "user_filters",
         indexes = {
                 @Index(name = "user_filters_user_id", columnList = "user_id"),
-                @Index(name = "user_filters_user_id_active", columnList = "user_id, active")
+                @Index(name = "user_filters_user_id_active", columnList = "user_id, active"),
+                @Index(name = "user_filters_user_id_domain_index", columnList = "user_id, domain")
         },
         uniqueConstraints = {
                 @UniqueConstraint(name = "user_filters_normalized_filter_name_unique", columnNames = {"user_id",
@@ -72,26 +74,30 @@ public class UserFilter extends Auditable {
     @ToString.Include
     private String normalizedUrlPattern;
 
-    @Column(name = "domain_filter", nullable = false, length = 255)
+    @Column(name = "domain", nullable = false, length = 255)
     @ToString.Include
-    private String domainFilter;
+    private String domain;
 
     @Column(name = "extraction_regex", nullable = false, length = 1000)
     @ToString.Include
     private String extractionRegex;
 
+    @Builder.Default
     @Column(name = "capture_group_index", nullable = false)
     @ToString.Include
     private Integer captureGroupIndex = 1;
 
+    @Builder.Default
     @Column(name = "priority", nullable = false)
     @ToString.Include
     private Integer priority = 0;
 
+    @Builder.Default
     @Column(name = "is_active", nullable = false)
     @ToString.Include
     private Boolean active = true;
 
+    @Builder.Default
     @Column(name = "match_count", nullable = false)
     @ToString.Include
     private Long matchCount = 0L;
@@ -99,5 +105,12 @@ public class UserFilter extends Auditable {
     @Column(name = "last_matched_at")
     @ToString.Include
     private Instant lastMatchedAt;
+
+    @PrePersist
+    @PreUpdate
+    private void prePersistUpdate() {
+        this.normalizedFilterName = StringUtils.normalize(this.filterName);
+        this.normalizedUrlPattern = StringUtils.normalize(this.urlPattern);
+    }
 
 }
