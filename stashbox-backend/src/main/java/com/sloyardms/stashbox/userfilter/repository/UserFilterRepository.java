@@ -1,22 +1,34 @@
 package com.sloyardms.stashbox.userfilter.repository;
 
+import com.sloyardms.stashbox.common.repository.UserScopedRepository;
 import com.sloyardms.stashbox.userfilter.entity.UserFilter;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
-public interface UserFilterRepository extends JpaRepository<UserFilter, UUID> {
+public interface UserFilterRepository extends UserScopedRepository<UserFilter, UUID>,
+        JpaSpecificationExecutor<UserFilter> {
 
-    @Query(value = """
-                SELECT uf
-                FROM UserFilter uf
-                WHERE uf.user.id = :userId
-                      AND (uf.normalizedFilterName LIKE LOWER(CONCAT('%', :query, '%'))
-                               OR uf.normalizedUrlPattern LIKE LOWER(CONCAT('%', :query, '%')))
+    @Modifying
+    @Query("""
+            UPDATE UserFilter uf
+            SET uf.matchCount = uf.matchCount + 1, uf.lastMatchedAt = :matchedAt
+            WHERE uf.id = :id AND uf.user.externalId = :userExternalId
             """)
-    Page<UserFilter> findAllByUserAndQuery(UUID userId, String query, Pageable pageable);
+    int incrementMatchCount(@Param("id") UUID id, @Param("userExternalId") UUID userExternalId,
+                            @Param("matchedAt") Instant matchedAt);
+
+    @Query("""
+            SELECT DISTINCT uf.domainFilter 
+            FROM UserFilter uf 
+            WHERE uf.user.externalId = :userExternalId 
+            ORDER BY uf.domainFilter
+            """)
+    List<String> findDistinctDomainsByUserExternalId(@Param("userExternalId") UUID userExternalId);
 
 }
