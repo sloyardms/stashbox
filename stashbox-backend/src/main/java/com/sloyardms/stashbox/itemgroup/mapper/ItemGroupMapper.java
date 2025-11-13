@@ -5,12 +5,13 @@ import com.sloyardms.stashbox.itemgroup.dto.ItemGroupResponse;
 import com.sloyardms.stashbox.itemgroup.dto.UpdateItemGroupRequest;
 import com.sloyardms.stashbox.itemgroup.entity.ItemGroup;
 import org.mapstruct.BeanMapping;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface ItemGroupMapper {
 
     @Mapping(target = "createdAt", ignore = true)
