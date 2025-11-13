@@ -81,16 +81,8 @@ public class UserFilterServiceImpl implements UserFilterService {
     public UserFilterResponse updateUserFilter(UUID id, UpdateUserFilterRequest request, UUID userExternalId) {
         UserFilter filter = userFilterRepository.findByIdAndUserExternalId(id, userExternalId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserFilter", "Id", id));
-
-        String urlPattern = filter.getUrlPattern();
-        String extractionRegex = filter.getExtractionRegex();
-
         filter = userFilterMapper.updateFromRequest(request, filter);
         filter = saveChanges(filter);
-
-        if (!filter.getUrlPattern().equals(urlPattern) || !filter.getExtractionRegex().equals(extractionRegex)) {
-
-        }
         return userFilterMapper.toResponse(filter);
     }
 
