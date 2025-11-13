@@ -76,6 +76,7 @@ public class NoteFile {
     @ToString.Include
     private String fileExtension;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "upload_status", nullable = false)
     private UploadStatus uploadStatus = UploadStatus.PENDING;

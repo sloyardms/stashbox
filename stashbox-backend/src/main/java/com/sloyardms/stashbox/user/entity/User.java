@@ -61,6 +61,7 @@ public class User extends Auditable {
     @JdbcTypeCode(SqlTypes.JSON)
     private UserSettings settings = new UserSettings();
 
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<UserFilter> filters = new ArrayList<>();
 

@@ -79,6 +79,7 @@ public class StashItem extends Auditable {
     @ToString.Include
     private String description;
 
+    @Builder.Default
     @Column(name = "is_favorite", nullable = false)
     @ToString.Include
     private boolean favorite = false;
