@@ -29,6 +29,7 @@
     <properties>
         <java.version>25</java.version>
         <rest-assured.version>5.5.6</rest-assured.version>
+        <assertj-core.version>3.27.6</assertj-core.version>
         <testcontainers-postgresql.version>1.20.0</testcontainers-postgresql.version>
         <testcontainers-keycloak.version>3.4.0</testcontainers-keycloak.version>
         <caffeine.version>3.2.3</caffeine.version>
@@ -110,6 +111,14 @@
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>${rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj-core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
