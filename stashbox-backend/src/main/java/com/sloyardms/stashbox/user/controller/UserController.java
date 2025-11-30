@@ -4,6 +4,7 @@ import com.sloyardms.stashbox.security.utils.AuthUtils;
 import com.sloyardms.stashbox.user.dto.UpdateUserSettingsRequest;
 import com.sloyardms.stashbox.user.dto.UserResponse;
 import com.sloyardms.stashbox.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -48,7 +49,7 @@ public class UserController {
     }
 
     @PatchMapping("/settings")
-    public ResponseEntity<UserResponse> updateUser(@RequestBody UpdateUserSettingsRequest request) {
+    public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UpdateUserSettingsRequest request) {
         UUID userExternalId = AuthUtils.getCurrentUserExternalId();
         UserResponse response = userService.updateUserSettings(request, userExternalId);
         return ResponseEntity.ok(response);
