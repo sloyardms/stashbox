@@ -17,4 +17,7 @@ public class UserSettingsResponse {
     @Builder.Default
     private Boolean darkMode = false;
 
+    @Builder.Default
+    private Boolean useFilters = false;
+
 }
