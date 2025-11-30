@@ -6,6 +6,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -40,6 +41,7 @@ import java.util.UUID;
 public class User extends Auditable {
 
     @Id
+    @GeneratedValue
     @Column(name = "id", nullable = false, updatable = false)
     @ToString.Include
     private UUID id;
