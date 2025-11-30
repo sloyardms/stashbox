@@ -1,14 +1,17 @@
-package com.sloyardms.stashbox.integration.common;
+package com.sloyardms.stashbox.integration;
 
+import com.sloyardms.stashbox.constants.ApiEndpoints;
+import com.sloyardms.stashbox.user.dto.UserResponse;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -20,6 +23,11 @@ import static io.restassured.RestAssured.given;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 public class BaseIntegrationTest {
+
+    @Value("${spring.data.web.pageable.default-page-size}")
+    public Integer defaultPageSize;
+    public Integer smallPageSize;
+    public Integer largePageSize;
 
     @LocalServerPort
     private int port;
@@ -51,20 +59,16 @@ public class BaseIntegrationTest {
                 () -> keycloakContainer.getAuthServerUrl() + "/realms/stashbox");
     }
 
-    @BeforeAll
-    static void startContainers() {
-        postgresContainer.start();
-        keycloakContainer.start();
-    }
-
     @BeforeEach
-    void setUp() {
+    void setUpTestBase() {
+        smallPageSize = defaultPageSize - 5;
+        largePageSize = defaultPageSize + 5;
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = port;
     }
 
     @AfterEach
-    void tearDown() {
+    void tearDownTestBase() {
         RestAssured.reset();
     }
 
@@ -104,6 +108,24 @@ public class BaseIntegrationTest {
                 .statusCode(200)
                 .extract()
                 .path("access_token");
+    }
+
+    public UserResponse createNormalUser() {
+        return createUser(normalUserRequest());
+    }
+
+    public UserResponse createAdminUser() {
+        return createUser(adminUserRequest());
+    }
+
+    private UserResponse createUser(RequestSpecification requestSpec) {
+        return requestSpec
+                .when()
+                .post(ApiEndpoints.USER_PROFILE)
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .extract()
+                .as(UserResponse.class);
     }
 
 }
