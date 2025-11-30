@@ -17,5 +17,6 @@ import lombok.Setter;
 public class UpdateUserSettingsRequest {
 
     private Boolean darkMode;
+    private Boolean useFilters;
 
 }
