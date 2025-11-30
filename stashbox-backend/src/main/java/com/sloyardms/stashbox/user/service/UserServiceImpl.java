@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserByExternalId(UUID userExternalId) {
         User user = userRepository.findByExternalId(userExternalId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userExternalId));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "External Id", userExternalId));
         return userMapper.toResponse(user);
     }
 
@@ -60,7 +60,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse saveUser(UUID externalId, String username, String email) {
         User user = new User();
-        user.setId(UUID.randomUUID());
         user.setExternalId(externalId);
         user.setUsername(username);
         user.setEmail(email);
@@ -73,7 +72,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUserByInternalId(UUID internalId) {
         User user = userRepository.findById(internalId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", internalId));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", internalId));
         userRepository.delete(user);
     }
 
@@ -81,7 +80,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUserByExternalId(UUID userExternalId) {
         User user = userRepository.findByExternalId(userExternalId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "externalId", userExternalId));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "External Id", userExternalId));
         userRepository.delete(user);
     }
 
@@ -89,7 +88,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse updateUserSettings(UpdateUserSettingsRequest updateUserSettingsRequest, UUID userExternalId) {
         User user = userRepository.findByExternalId(userExternalId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "externalId", userExternalId));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "External Id", userExternalId));
         UserSettings newSettings = userSettingsMapper.updateFromDto(updateUserSettingsRequest, user.getSettings());
         user.setSettings(newSettings);
         user = saveUserChanges(user);
@@ -98,7 +97,7 @@ public class UserServiceImpl implements UserService {
 
     private User saveUserChanges(User user) {
         try {
-            return userRepository.save(user);
+            return userRepository.saveAndFlush(user);
         } catch (DataIntegrityViolationException e) {
             String message = e.getMessage();
             if (message != null && message.contains("users_external_id_unique")) {
