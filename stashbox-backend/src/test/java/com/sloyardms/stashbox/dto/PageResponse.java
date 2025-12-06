@@ -1,4 +1,4 @@
-package com.sloyardms.stashbox.utils;
+package com.sloyardms.stashbox.dto;
 
 import lombok.Data;
 
