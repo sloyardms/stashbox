@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
             if (message != null && message.contains("users_username_unique")) {
                 throw new ResourceAlreadyExistsException("User", "Username", user.getUsername());
             }
-            if (message != null && message.contains("users_username_email")) {
+            if (message != null && message.contains("users_email_unique")) {
                 throw new ResourceAlreadyExistsException("User", "Email", user.getEmail());
             }
             throw e;

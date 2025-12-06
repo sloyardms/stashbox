@@ -36,7 +36,7 @@ import java.util.UUID;
         uniqueConstraints = {
                 @UniqueConstraint(name = "users_external_id_unique", columnNames = "external_id"),
                 @UniqueConstraint(name = "users_username_unique", columnNames = "username"),
-                @UniqueConstraint(name = "users_username_email", columnNames = "email")
+                @UniqueConstraint(name = "users_email_unique", columnNames = "email")
         })
 public class User extends Auditable {
 
