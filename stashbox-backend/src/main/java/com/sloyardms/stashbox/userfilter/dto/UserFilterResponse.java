@@ -28,5 +28,7 @@ public class UserFilterResponse {
     private Boolean active;
     private Long matchCount;
     private Instant lastMatchedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 
 }
