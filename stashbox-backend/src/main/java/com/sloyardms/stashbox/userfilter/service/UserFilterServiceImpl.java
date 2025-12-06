@@ -40,6 +40,7 @@ public class UserFilterServiceImpl implements UserFilterService {
     public UserFilterResponse getUserFilterById(UUID id, UUID userExternalId) {
         UserFilter userFilter = userFilterRepository.findByIdAndUserExternalId(id, userExternalId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserFilter", "id", id));
+        System.out.println(userFilter);
         return userFilterMapper.toResponse(userFilter);
     }
 
@@ -68,7 +69,6 @@ public class UserFilterServiceImpl implements UserFilterService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "External Id", "[REDACTED]"));
 
         UserFilter filter = userFilterMapper.toEntity(request);
-        filter.setId(UUID.randomUUID());
         filter.setUser(user);
 
         filter = saveChanges(filter);
