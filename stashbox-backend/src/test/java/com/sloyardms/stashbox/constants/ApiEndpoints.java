@@ -10,4 +10,10 @@ public final class ApiEndpoints {
     public static final String ADMIN_USERS_LIST = "/api/v1/admin/users";
     public static final String ADMIN_USERS_BY_ID = "/api/v1/admin/users/{id}";
 
+    // UserFilter
+    public static final String USER_FILTER_BY_ID = "/api/v1/filters/{id}";
+    public static final String USER_FILTERS = "/api/v1/filters";
+    public static final String USER_FILTER_RECORD_MATCH = "/api/v1/filters/{id}/match";
+    public static final String USER_FILTERS_DOMAIN_LIST = "/api/v1/filters/domains";
+
 }
