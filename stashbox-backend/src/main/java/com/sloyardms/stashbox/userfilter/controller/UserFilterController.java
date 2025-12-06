@@ -5,6 +5,7 @@ import com.sloyardms.stashbox.userfilter.dto.CreateUserFilterRequest;
 import com.sloyardms.stashbox.userfilter.dto.UpdateUserFilterRequest;
 import com.sloyardms.stashbox.userfilter.dto.UserFilterResponse;
 import com.sloyardms.stashbox.userfilter.service.UserFilterService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Validated
 @RestController
-@RequestMapping("/api/v1/user-filters")
+@RequestMapping("/api/v1/filters")
 public class UserFilterController {
 
     private final UserFilterService userFilterService;
@@ -55,7 +56,7 @@ public class UserFilterController {
     }
 
     @PostMapping
-    public ResponseEntity<UserFilterResponse> saveUserFilter(@RequestBody CreateUserFilterRequest request) {
+    public ResponseEntity<UserFilterResponse> saveUserFilter(@Valid @RequestBody CreateUserFilterRequest request) {
         UUID userExternalId = AuthUtils.getCurrentUserExternalId();
         UserFilterResponse response = userFilterService.saveUserFilter(request, userExternalId);
         URI location = ServletUriComponentsBuilder
@@ -68,7 +69,7 @@ public class UserFilterController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<UserFilterResponse> updateUserFilter(@PathVariable UUID id,
-                                                               @RequestBody UpdateUserFilterRequest request) {
+                                                               @Valid @RequestBody UpdateUserFilterRequest request) {
         UUID userExternalId = AuthUtils.getCurrentUserExternalId();
         UserFilterResponse response = userFilterService.updateUserFilter(id, request, userExternalId);
         return ResponseEntity.ok(response);
