@@ -30,6 +30,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -60,7 +61,8 @@ public class GlobalExceptionHandler {
     private static final String LOG_METHOD_NOT_ALLOWED = "[{}] Method {} not supported for {} - Supported: {}";
     private static final String LOG_UNSUPPORTED_MEDIA_TYPE = "[{}] Unsupported media type {} for {} - Supported: {}";
     private static final String LOG_MISSING_PARAMETER = "[{}] Missing required parameter '{}' ({}) for {}";
-    private static final String LOG_TYPE_MISMATCH = "[{}] Type mismatch for parameter '{}' on {}: expected {}, got {} - Value: {}";
+    private static final String LOG_TYPE_MISMATCH = "[{}] Type mismatch for parameter '{}' on {}: expected {}, got {}" +
+            " - Value: {}";
     private static final String LOG_FILE_TOO_LARGE = "[{}] File upload size exceeded for {}: max allowed {} bytes";
     private static final String LOG_NO_HANDLER_FOUND = "[{}] No handler found for {} {}";
     private static final String LOG_DATABASE_ERROR = "[{}] Database access exception on {}: {}";
@@ -634,7 +636,17 @@ public class GlobalExceptionHandler {
             case "java.lang.Double", "double", "java.lang.Float", "float" -> "number";
             case "java.time.LocalDate" -> "date (ISO-8601)";
             case "java.time.LocalDateTime", "java.time.ZonedDateTime", "java.time.Instant" -> "datetime (ISO-8601)";
-            default -> "object";
+            default -> {
+                if (fullTypeName.startsWith("java.util.List") ||
+                        fullTypeName.startsWith("java.util.Set") ||
+                        fullTypeName.startsWith("java.util.Collection")) {
+                    yield "array";
+                }
+                if (fullTypeName.startsWith("java.util.Map")) {
+                    yield "object";
+                }
+                yield "object";
+            }
         };
     }
 
@@ -737,7 +749,7 @@ public class GlobalExceptionHandler {
                 errors.add(new FieldError(
                         fieldError.getField(),
                         error.getDefaultMessage(),
-                        null
+                        getExpectedTypeForField(bindingResult.getTarget(), fieldError.getField())
                 ));
             } else {
                 // Object-level validation (field = null indicates class-level constraint)
@@ -750,6 +762,67 @@ public class GlobalExceptionHandler {
         });
 
         return errors;
+    }
+
+    /**
+     * Determines expected type for a field using reflection
+     * Navigates nested field paths (e.g., "address.street") to find the declared type
+     *
+     * @param target    the object being validated (can be null)
+     * @param fieldPath the field name or nested path (e.g., "name" or "address.city")
+     * @return user-friendly type name or null if type cannot be determined
+     */
+    private String getExpectedTypeForField(Object target, String fieldPath) {
+        if (target == null || fieldPath == null) {
+            return null;
+        }
+
+        try {
+            Class<?> currentClass = target.getClass();
+            String[] fieldParts = fieldPath.split("\\.");
+
+            // Navigate through nested fields
+            for (String fieldName : fieldParts) {
+                Field field = findField(currentClass, fieldName);
+                if (field == null) {
+                    return null;
+                }
+
+                // If this is the last part, get its type
+                if (fieldName.equals(fieldParts[fieldParts.length - 1])) {
+                    Class<?> fieldType = field.getType();
+                    return simplifyTypeName(fieldType.getName());
+                }
+
+                // Navigate to the next nested class
+                currentClass = field.getType();
+            }
+        } catch (Exception e) {
+            log.debug("Could not determine expected type for field: {}", fieldPath, e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Finds a field in a class, checking superclasses if necessary
+     *
+     * @param clazz     the class to search
+     * @param fieldName the field name to find
+     * @return the Field object or null if not found
+     */
+    private Field findField(Class<?> clazz, String fieldName) {
+        Class<?> currentClass = clazz;
+
+        while (currentClass != null && currentClass != Object.class) {
+            try {
+                return currentClass.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                currentClass = currentClass.getSuperclass();
+            }
+        }
+
+        return null;
     }
 }
 
