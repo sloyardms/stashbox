@@ -1,11 +1,12 @@
 package com.sloyardms.stashbox.user.specification;
 
+import com.sloyardms.stashbox.common.specification.SpecificationUtils;
 import com.sloyardms.stashbox.user.entity.User;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.UUID;
 
-public class UserSpecification {
+public class UserSpecification extends SpecificationUtils {
 
     public static Specification<User> excludingUser(UUID userExternalId) {
         return (root, query, cb) ->
@@ -17,10 +18,10 @@ public class UserSpecification {
             if (searchQuery == null || searchQuery.isBlank()) {
                 return cb.conjunction();
             }
-            String pattern = "%" + searchQuery.trim().toLowerCase() + "%";
+            String pattern = escapeLikePattern(searchQuery.trim().toLowerCase());
             return cb.or(
-                    cb.like(cb.lower(root.get("username")), pattern),
-                    cb.like(cb.lower(root.get("email")), pattern)
+                    cb.like(cb.lower(root.get("username")), pattern, '\\'),
+                    cb.like(cb.lower(root.get("email")), pattern, '\\')
             );
         };
     }
