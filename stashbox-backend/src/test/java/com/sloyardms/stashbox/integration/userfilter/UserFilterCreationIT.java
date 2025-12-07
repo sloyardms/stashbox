@@ -106,7 +106,7 @@ public class UserFilterCreationIT extends BaseIntegrationTest {
         @Test
         @DisplayName("Should return 400 when fields exceed character limit")
         void shouldReturn400WhenFieldsExceedCharacterLimit() {
-            UserFilter savedFilter = fixture.createTestUserFilter(currentUser.getId());
+            fixture.createTestUserFilter(currentUser.getId());
 
             CreateUserFilterRequest request = CreateUserFilterRequest.builder()
                     .filterName("a".repeat(101))
