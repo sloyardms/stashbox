@@ -21,12 +21,14 @@ public class UserFilterResponse {
     private String filterName;
     private String description;
     private String urlPattern;
-    private String domainFilter;
+    private String domain;
     private String extractionRegex;
     private Integer captureGroupIndex;
     private Integer priority;
     private Boolean active;
     private Long matchCount;
     private Instant lastMatchedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 
 }

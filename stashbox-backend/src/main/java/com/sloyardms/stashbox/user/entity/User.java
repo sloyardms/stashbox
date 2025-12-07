@@ -6,6 +6,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -34,11 +35,13 @@ import java.util.UUID;
 @Table(name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(name = "users_external_id_unique", columnNames = "external_id"),
-                @UniqueConstraint(name = "users_username_unique", columnNames = "username")
+                @UniqueConstraint(name = "users_username_unique", columnNames = "username"),
+                @UniqueConstraint(name = "users_email_unique", columnNames = "email")
         })
 public class User extends Auditable {
 
     @Id
+    @GeneratedValue
     @Column(name = "id", nullable = false, updatable = false)
     @ToString.Include
     private UUID id;
@@ -51,11 +54,16 @@ public class User extends Auditable {
     @ToString.Include
     private String username;
 
+    @Column(name = "email", unique = true, nullable = false)
+    @ToString.Include
+    private String email;
+
     @Column(name = "settings", columnDefinition = "jsonb", nullable = false)
     @Builder.Default
     @JdbcTypeCode(SqlTypes.JSON)
     private UserSettings settings = new UserSettings();
 
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<UserFilter> filters = new ArrayList<>();
 

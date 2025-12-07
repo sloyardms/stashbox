@@ -31,9 +31,9 @@ public class CreateUserFilterRequest {
     @Size(max = 2048, message = "{userFilter.urlPattern.maxSize}")
     private String urlPattern;
 
-    @NotBlank(message = "{userFilter.domainFilter.notBlank}")
-    @Size(max = 255, message = "{userFilter.domainFilter.maxSize}")
-    private String domainFilter;
+    @NotBlank(message = "{userFilter.domain.notBlank}")
+    @Size(max = 255, message = "{userFilter.domain.maxSize}")
+    private String domain;
 
     @NotBlank(message = "{userFilter.extractionRegex.notBlank}")
     @Size(max = 1000, message = "{userFilter.extractionRegex.maxSize}")

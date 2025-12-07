@@ -15,10 +15,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class UserSummaryResponse {
+public class AdminUserResponse {
 
     private UUID id;
     private String username;
+    private String email;
     private Instant createdAt;
     private Instant updatedAt;
 

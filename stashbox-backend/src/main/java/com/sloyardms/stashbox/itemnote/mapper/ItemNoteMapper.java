@@ -6,12 +6,13 @@ import com.sloyardms.stashbox.itemnote.dto.UpdateItemNoteRequest;
 import com.sloyardms.stashbox.itemnote.entity.ItemNote;
 import com.sloyardms.stashbox.notefile.mapper.NoteFileMapper;
 import org.mapstruct.BeanMapping;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring", uses = {NoteFileMapper.class})
+@Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true), uses = {NoteFileMapper.class})
 public interface ItemNoteMapper {
 
     @Mapping(target = "createdAt", ignore = true)

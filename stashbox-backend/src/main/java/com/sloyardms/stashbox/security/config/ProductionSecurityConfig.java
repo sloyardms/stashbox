@@ -1,6 +1,7 @@
 package com.sloyardms.stashbox.security.config;
 
 import com.sloyardms.stashbox.security.converter.KeycloakJwtAuthenticationConverter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,16 +15,15 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @Profile({"prod", "dev"})
+@RequiredArgsConstructor
 public class ProductionSecurityConfig {
 
     private final KeycloakJwtAuthenticationConverter jwtAuthenticationConverter;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     @Value("${security.public-endpoints:/actuator/health,/actuator/info}")
     private String[] publicEndpoints;
-
-    public ProductionSecurityConfig(KeycloakJwtAuthenticationConverter jwtAuthenticationConverter) {
-        this.jwtAuthenticationConverter = jwtAuthenticationConverter;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -37,8 +37,12 @@ public class ProductionSecurityConfig {
                         .requestMatchers("/api/v1/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
-
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
                 .oauth2ResourceServer(oauth2 -> oauth2
+                        .authenticationEntryPoint(authenticationEntryPoint)
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
                 );
         return http.build();

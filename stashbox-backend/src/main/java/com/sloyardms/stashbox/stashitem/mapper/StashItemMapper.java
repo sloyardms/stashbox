@@ -9,12 +9,14 @@ import com.sloyardms.stashbox.stashitem.dto.StashItemSummaryResponse;
 import com.sloyardms.stashbox.stashitem.dto.UpdateStashItemRequest;
 import com.sloyardms.stashbox.stashitem.entity.StashItem;
 import org.mapstruct.BeanMapping;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring", uses = {ItemGroupMapper.class, ItemImageMapper.class, ItemTagMapper.class})
+@Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true), uses = {ItemGroupMapper.class,
+        ItemImageMapper.class, ItemTagMapper.class})
 public interface StashItemMapper {
 
     @Mapping(target = "createdAt", ignore = true)
@@ -28,6 +30,7 @@ public interface StashItemMapper {
     @Mapping(target = "group", ignore = true)
     @Mapping(target = "favorite", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "tags", ignore = true)
     StashItem toEntity(CreateStashItemRequest createStashItemRequest);
 
 
@@ -42,6 +45,7 @@ public interface StashItemMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "group", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "tags", ignore = true)
     StashItem updateFromRequest(UpdateStashItemRequest updateStashItemRequest, @MappingTarget StashItem stashItem);
 
     StashItemResponse toResponse(StashItem stashItem);
