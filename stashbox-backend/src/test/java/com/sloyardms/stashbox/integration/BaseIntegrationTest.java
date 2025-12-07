@@ -1,8 +1,9 @@
 package com.sloyardms.stashbox.integration;
 
 import com.sloyardms.stashbox.constants.ApiEndpoints;
-import com.sloyardms.stashbox.user.dto.UserResponse;
+import com.sloyardms.stashbox.containers.TestContainersConfig;
 import com.sloyardms.stashbox.dto.PageResponse;
+import com.sloyardms.stashbox.user.dto.UserResponse;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -16,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static io.restassured.RestAssured.given;
@@ -39,26 +39,17 @@ public class BaseIntegrationTest {
     public static final String ADMIN_USERNAME = "admin_user";
     public static final String ADMIN_PASSWORD = "password";
 
-    @Container
-    static final PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:18.0")
-            .withDatabaseName("stashboxdb")
-            .withUsername("stashboxdbuser")
-            .withPassword("stashboxdbpassword");
-
-    @Container
-    static final KeycloakContainer keycloakContainer = new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
-            .withRealmImportFile("/keycloak/stashbox-realm.json");
-
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        // Override postgresql properties
-        registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgresContainer::getUsername);
-        registry.add("spring.datasource.password", postgresContainer::getPassword);
+        PostgreSQLContainer<?> postgres = TestContainersConfig.getPostgresContainer();
+        KeycloakContainer keycloak = TestContainersConfig.getKeycloakContainer();
 
-        // Override Keycloak properties
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+
         registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
-                () -> keycloakContainer.getAuthServerUrl() + "/realms/stashbox");
+                () -> keycloak.getAuthServerUrl() + "/realms/stashbox");
     }
 
     @BeforeEach
@@ -96,7 +87,7 @@ public class BaseIntegrationTest {
     }
 
     private String generateAccessToken(String username, String password) {
-        String tokenUrl = keycloakContainer.getAuthServerUrl() +
+        String tokenUrl = TestContainersConfig.getKeycloakContainer().getAuthServerUrl() +
                 "/realms/stashbox/protocol/openid-connect/token";
         return given()
                 .contentType("application/x-www-form-urlencoded")
@@ -134,8 +125,8 @@ public class BaseIntegrationTest {
      * Asserts pagination metadata matches expected values
      */
     public void assertPaginationMetadata(PageResponse<?> response,
-                                          int expectedSize,
-                                          int expectedTotalElements) {
+                                         int expectedSize,
+                                         int expectedTotalElements) {
         int expectedTotalPages = calculateExpectedPages(expectedTotalElements, expectedSize);
 
         assertThat(response.getPage().getSize()).isEqualTo(expectedSize);
