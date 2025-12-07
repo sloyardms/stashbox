@@ -1,11 +1,12 @@
 package com.sloyardms.stashbox.userfilter.specification;
 
+import com.sloyardms.stashbox.common.specification.SpecificationUtils;
 import com.sloyardms.stashbox.userfilter.entity.UserFilter;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.UUID;
 
-public class UserFilterSpecification {
+public class UserFilterSpecification extends SpecificationUtils {
 
     public static Specification<UserFilter> belongsToUser(UUID userExternalId) {
         return (root, query, cb) ->
@@ -26,7 +27,7 @@ public class UserFilterSpecification {
             if (domain == null || domain.isBlank()) {
                 return cb.conjunction();
             }
-            return cb.equal(root.get("domain"), domain);
+            return cb.equal(root.get("domain"), domain.trim());
         };
     }
 
@@ -35,10 +36,10 @@ public class UserFilterSpecification {
             if (searchQuery == null || searchQuery.isBlank()) {
                 return cb.conjunction();
             }
-            String pattern = "%" + searchQuery.trim().toLowerCase() + "%";
+            String pattern = escapeLikePattern(searchQuery.trim().toLowerCase());
             return cb.or(
-                    cb.like(root.get("normalizedFilterName"), pattern),
-                    cb.like(root.get("normalizedUrlPattern"), pattern)
+                    cb.like(root.get("normalizedFilterName"), pattern, '\\'),
+                    cb.like(root.get("normalizedUrlPattern"), pattern, '\\')
             );
         };
     }
