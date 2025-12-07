@@ -82,7 +82,7 @@ public class UserSettingsUpdateIT extends BaseIntegrationTest {
         @Test
         @DisplayName("Should return 200 and update both settings")
         void shouldReturn200AndUpdateBothSettings() {
-            UserResponse user = createNormalUser();
+            createNormalUser();
 
             UpdateUserSettingsRequest request = UpdateUserSettingsRequest.builder()
                     .darkMode(true)
@@ -105,7 +105,7 @@ public class UserSettingsUpdateIT extends BaseIntegrationTest {
         @Test
         @DisplayName("Should return 200 and only update specified setting (partial update)")
         void shouldReturn200AndOnlyUpdateSpecifiedSetting() {
-            UserResponse user = createNormalUser();
+            createNormalUser();
 
             // First, set darkMode to true
             UpdateUserSettingsRequest firstRequest = UpdateUserSettingsRequest.builder()
