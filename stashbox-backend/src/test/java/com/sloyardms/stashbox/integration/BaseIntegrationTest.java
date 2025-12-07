@@ -2,6 +2,7 @@ package com.sloyardms.stashbox.integration;
 
 import com.sloyardms.stashbox.constants.ApiEndpoints;
 import com.sloyardms.stashbox.user.dto.UserResponse;
+import com.sloyardms.stashbox.dto.PageResponse;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -19,6 +20,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -126,6 +128,27 @@ public class BaseIntegrationTest {
                 .statusCode(HttpStatus.CREATED.value())
                 .extract()
                 .as(UserResponse.class);
+    }
+
+    /**
+     * Asserts pagination metadata matches expected values
+     */
+    public void assertPaginationMetadata(PageResponse<?> response,
+                                          int expectedSize,
+                                          int expectedTotalElements) {
+        int expectedTotalPages = calculateExpectedPages(expectedTotalElements, expectedSize);
+
+        assertThat(response.getPage().getSize()).isEqualTo(expectedSize);
+        assertThat(response.getPage().getTotalElements()).isEqualTo(expectedTotalElements);
+        assertThat(response.getPage().getTotalPages()).isEqualTo(expectedTotalPages);
+    }
+
+    /**
+     * Calculates expected number of pages for pagination
+     */
+    private int calculateExpectedPages(int totalElements, int pageSize) {
+        if (totalElements == 0) return 0;
+        return (int) Math.ceil((double) totalElements / pageSize);
     }
 
 }
