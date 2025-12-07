@@ -1,10 +1,11 @@
-package com.sloyardms.stashbox.integration;
+package com.sloyardms.stashbox.integration.user;
 
 import com.sloyardms.stashbox.constants.ApiEndpoints;
+import com.sloyardms.stashbox.dto.PageResponse;
+import com.sloyardms.stashbox.integration.BaseIntegrationTest;
 import com.sloyardms.stashbox.user.dto.UserResponse;
 import com.sloyardms.stashbox.user.entity.User;
 import com.sloyardms.stashbox.user.repository.UserRepository;
-import com.sloyardms.stashbox.utils.PageResponse;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
@@ -26,7 +27,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("dev")
-public class AdminUserIntegrationTest extends BaseIntegrationTest {
+public class AdminUserSearchIT extends BaseIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -38,8 +39,8 @@ public class AdminUserIntegrationTest extends BaseIntegrationTest {
     }
 
     @Nested
-    @DisplayName("GET " + ApiEndpoints.ADMIN_USERS_LIST)
-    class GetUsers {
+    @DisplayName("Successful Operations")
+    class SuccessfulOperations {
 
         @Test
         @DisplayName("Should return 200 and paginated users excluding current admin")
@@ -63,23 +64,6 @@ public class AdminUserIntegrationTest extends BaseIntegrationTest {
             assertPaginationMetadata(response, defaultPageSize, 0);
             assertThat(response.getPage().getNumber()).isEqualTo(0);
             assertThat(response.getContent()).isEmpty();
-        }
-
-        @Test
-        @DisplayName("Should respect page size parameter")
-        void shouldRespectPageSizeParameter() {
-            int pageSize = 5;
-            int numberOfUsers = smallPageSize;
-            createUserList(numberOfUsers);
-
-            PageResponse<UserResponse> response = fetchUsers(spec ->
-                    spec.queryParam("size", pageSize)
-            );
-
-            assertPaginationMetadata(response, pageSize, numberOfUsers);
-            assertThat(response.getContent()).hasSize(pageSize);
-            assertCurrentAdminExcluded(response);
-            assertThat(userRepository.count()).isEqualTo(numberOfUsers + 1);
         }
 
         @Test
@@ -119,18 +103,6 @@ public class AdminUserIntegrationTest extends BaseIntegrationTest {
         }
 
         @Test
-        @DisplayName("Should return 400 when sorting by invalid field")
-        void shouldReturn400WhenSortingByInvalidField() {
-            adminUserRequest()
-                    .queryParam("sort", "invalidField,desc")
-                    .when()
-                    .get(ApiEndpoints.ADMIN_USERS_LIST)
-                    .then()
-                    .log().body()
-                    .statusCode(HttpStatus.BAD_REQUEST.value());
-        }
-
-        @Test
         @DisplayName("Should filter by username search query")
         void shouldFilterByUsernameSearchQuery() {
             int numberOfUsers = smallPageSize;
@@ -164,112 +136,29 @@ public class AdminUserIntegrationTest extends BaseIntegrationTest {
             assertCurrentAdminExcluded(response);
         }
 
-        @Test
-        @DisplayName("Should return correct page when page parameter is provided")
-        void shouldReturnCorrectPageWhenPageParameterIsProvided() {
-            int numberOfUsers = largePageSize;
-            createUserList(numberOfUsers);
-
-            PageResponse<UserResponse> response = fetchUsers(spec ->
-                    spec.queryParam("page", 1)
-            );
-
-            int expectedSize = numberOfUsers - defaultPageSize;
-            assertPaginationMetadata(response, defaultPageSize, numberOfUsers);
-            assertThat(response.getPage().getNumber()).isEqualTo(1);
-            assertThat(response.getContent()).hasSize(expectedSize);
-            assertCurrentAdminExcluded(response);
-        }
-
-        @Test
-        @DisplayName("Should return empty result when search query matches no users")
-        void shouldReturnEmptyResultWhenSearchingWithNoUsers() {
-            PageResponse<UserResponse> response = fetchUsers(spec ->
-                    spec.queryParam("search", "nonexistent")
-            );
-
-            assertPaginationMetadata(response, defaultPageSize, 0);
-            assertThat(response.getContent()).isEmpty();
-        }
-
-        @Test
-        @DisplayName("Should apply sorting to search results")
-        void shouldApplySortingToSearchResults() {
-            createUserList(15);
-
-            PageResponse<UserResponse> response = fetchUsers(spec -> {
-                spec.queryParam("search", "1");
-                spec.queryParam("sort", "username,desc");
-            });
-
-            List<String> usernames = extractUsernames(response);
-            assertThat(usernames).isSortedAccordingTo(Comparator.reverseOrder());
-        }
-
-        @Test
-        @DisplayName("Should return 401 when token is not provided")
-        void shouldReturn401WhenTokenNotProvided() {
-            given()
-                    .contentType(ContentType.JSON)
-                    .when()
-                    .get(ApiEndpoints.ADMIN_USERS_LIST)
-                    .then()
-                    .log().body()
-                    .statusCode(HttpStatus.UNAUTHORIZED.value());
-        }
-
-        @Test
-        @DisplayName("Should return 403 when authenticated user is not ADMIN")
-        void shouldReturn403WhenAuthenticatedUserIsNotAdmin() {
-            normalUserRequest()
-                    .when()
-                    .get(ApiEndpoints.ADMIN_USERS_LIST)
-                    .then()
-                    .log().body()
-                    .statusCode(HttpStatus.FORBIDDEN.value());
-        }
     }
 
     @Nested
-    @DisplayName("DELETE " + ApiEndpoints.ADMIN_USERS_BY_ID)
-    class DeleteById {
+    @DisplayName("Validation Errors")
+    class ValidationErrors {
 
         @Test
-        @DisplayName("Should return 204 and delete user")
-        void shouldReturn204AndDeleteUser() {
-            User newUser = User.builder()
-                    .externalId(UUID.randomUUID())
-                    .username("user1")
-                    .email("user1@gmail.com")
-                    .build();
-            newUser = userRepository.save(newUser);
-
-            int numberOfUsers = (int) userRepository.count();
-
+        @DisplayName("Should return 400 when sorting by invalid field")
+        void shouldReturn400WhenSortingByInvalidField() {
             adminUserRequest()
-                    .pathParams("id", newUser.getId())
+                    .queryParam("sort", "invalidField,desc")
                     .when()
-                    .delete(ApiEndpoints.ADMIN_USERS_BY_ID)
-                    .then()
-                    .statusCode(HttpStatus.NO_CONTENT.value());
-
-            int numberOfUsersAfterDelete = (int) userRepository.count();
-            assertThat(numberOfUsersAfterDelete).isEqualTo(numberOfUsers - 1);
-        }
-
-        @Test
-        @DisplayName("Should return 404 when user does not exists")
-        void shouldReturn404WhenUserDoesNotExist() {
-            UUID nonexistentId = UUID.randomUUID();
-
-            adminUserRequest()
-                    .pathParams("id", nonexistentId)
-                    .when()
-                    .delete(ApiEndpoints.ADMIN_USERS_BY_ID)
+                    .get(ApiEndpoints.ADMIN_USERS_LIST)
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.NOT_FOUND.value());
+                    .statusCode(HttpStatus.BAD_REQUEST.value());
         }
+
+    }
+
+    @Nested
+    @DisplayName("Authentication and Authorization")
+    class AuthenticationAndAuthorization {
 
         @Test
         @DisplayName("Should return 401 when token is not provided")
@@ -277,7 +166,7 @@ public class AdminUserIntegrationTest extends BaseIntegrationTest {
             given()
                     .contentType(ContentType.JSON)
                     .when()
-                    .delete(ApiEndpoints.USER_PROFILE)
+                    .get(ApiEndpoints.ADMIN_USERS_LIST)
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.UNAUTHORIZED.value());
@@ -296,21 +185,14 @@ public class AdminUserIntegrationTest extends BaseIntegrationTest {
 
     }
 
-    // ==================== HELPER METHODS ====================
-
     /**
-     * Fetches users with default parameters
+     * HELPER METHODS
      */
     private PageResponse<UserResponse> fetchUsers() {
         return fetchUsers(spec -> {
         });
     }
 
-    /**
-     * Fetches users with custom request parameters
-     *
-     * @param customizer function to customize the request specification
-     */
     private PageResponse<UserResponse> fetchUsers(Consumer<RequestSpecification> customizer) {
         RequestSpecification request = adminUserRequest();
         customizer.accept(request);
@@ -325,22 +207,12 @@ public class AdminUserIntegrationTest extends BaseIntegrationTest {
                 });
     }
 
-    /**
-     * Asserts pagination metadata matches expected values
-     */
-    private void assertPaginationMetadata(PageResponse<?> response,
-                                          int expectedSize,
-                                          int expectedTotalElements) {
-        int expectedTotalPages = calculateExpectedPages(expectedTotalElements, expectedSize);
-
-        assertThat(response.getPage().getSize()).isEqualTo(expectedSize);
-        assertThat(response.getPage().getTotalElements()).isEqualTo(expectedTotalElements);
-        assertThat(response.getPage().getTotalPages()).isEqualTo(expectedTotalPages);
+    private void assertCurrentAdminExcluded(PageResponse<UserResponse> response) {
+        assertThat(response.getContent())
+                .extracting(UserResponse::getUsername)
+                .doesNotContain(ADMIN_USERNAME);
     }
 
-    /**
-     * Extracts usernames from response content
-     */
     private List<String> extractUsernames(PageResponse<UserResponse> response) {
         return response.getContent()
                 .stream()
@@ -348,28 +220,6 @@ public class AdminUserIntegrationTest extends BaseIntegrationTest {
                 .toList();
     }
 
-    /**
-     * Asserts that the current admin user is excluded from results
-     */
-    private void assertCurrentAdminExcluded(PageResponse<UserResponse> response) {
-        assertThat(response.getContent())
-                .extracting(UserResponse::getUsername)
-                .doesNotContain(ADMIN_USERNAME);
-    }
-
-    /**
-     * Calculates expected number of pages for pagination
-     */
-    private int calculateExpectedPages(int totalElements, int pageSize) {
-        if (totalElements == 0) return 0;
-        return (int) Math.ceil((double) totalElements / pageSize);
-    }
-
-    /**
-     * Creates and saves a list of test users with sequential naming
-     *
-     * @param size number of users to create
-     */
     private void createUserList(int size) {
         List<User> users = new ArrayList<>();
 
